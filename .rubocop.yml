@@ -1,0 +1,38 @@
+AllCops:
+  TargetRubyVersion: 2.3
+
+Lint/UnusedMethodArgument:
+  AllowUnusedKeywordArguments: true
+
+Metrics/AbcSize:
+  Max: 20
+  Exclude: ["spec/**/*"]
+
+Metrics/BlockLength:
+  Exclude: ["spec/**/*", "*.gemspec"]
+
+Metrics/LineLength:
+  Max: 100
+  Exclude: ["*.gemspec"]
+
+Metrics/MethodLength:
+  Max: 15
+  Exclude: ["spec/**/*"]
+
+Style/FrozenStringLiteralComment:
+  Exclude: ["gemfiles/*"]
+
+Style/Documentation:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/SymbolArray:
+  Exclude: ["spec/**/*", "*.gemspec", "Rakefile"]
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: consistent_comma
