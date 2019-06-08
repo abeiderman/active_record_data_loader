@@ -30,6 +30,7 @@ RSpec.describe DataLoader, :connects_to_db do
         end
 
         model Payment do |m|
+          m.batch_size 100
           m.count 1_000
 
           m.column :date, -> { date_range.sample }
