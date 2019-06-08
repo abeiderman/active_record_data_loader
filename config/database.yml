@@ -1,0 +1,10 @@
+postgres:
+  adapter: "postgresql"
+  host: "127.0.0.1"
+  database: "test"
+  username: "test"
+  password: "test"
+
+sqlite3:
+  adapter: "sqlite3"
+  database: ":memory:"

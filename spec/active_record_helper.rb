@@ -66,24 +66,19 @@ class ActiveRecordHelper
     end
 
     def connect_to_postgres
-      ActiveRecord::Base.establish_connection(
-        adapter: "postgresql",
-        host: "127.0.0.1",
-        database: "test",
-        username: "test",
-        password: "test"
-      )
+      ActiveRecord::Base.establish_connection(db_config["postgres"])
     end
 
     def connect_to_sqlite3
-      ActiveRecord::Base.establish_connection(
-        adapter: "sqlite3",
-        database: ":memory:"
-      )
+      ActiveRecord::Base.establish_connection(db_config["sqlite3"])
     end
 
     def reset_column_information
       [Customer, Employee, Order, Payment].each(&:reset_column_information)
+    end
+
+    def db_config
+      @db_config ||= YAML.load_file(File.join(__dir__, "../config/database.yml"))
     end
   end
 end
