@@ -2,7 +2,7 @@
 
 require "ostruct"
 
-RSpec.describe DataLoader::ActiveRecord::IntegerValueGenerator, :connects_to_db do
+RSpec.describe ActiveRecordDataLoader::ActiveRecord::IntegerValueGenerator, :connects_to_db do
   subject(:generator) { described_class.generator_for(model_class: nil, ar_column: ar_column) }
 
   %i[postgres sqlite3].each do |db|

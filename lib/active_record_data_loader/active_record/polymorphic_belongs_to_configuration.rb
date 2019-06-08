@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DataLoader
+module ActiveRecordDataLoader
   module ActiveRecord
     class PolymorphicBelongsToConfiguration
       def self.config_for(polymorphic_settings:)

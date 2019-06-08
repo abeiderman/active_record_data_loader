@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DataLoader::Dsl::PolymorphicAssociation do
+RSpec.describe ActiveRecordDataLoader::Dsl::PolymorphicAssociation do
   describe "#weighted_models" do
     subject(:association) { described_class.new(Order, :person) }
 

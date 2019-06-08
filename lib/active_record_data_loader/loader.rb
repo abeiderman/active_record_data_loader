@@ -2,7 +2,7 @@
 
 require "benchmark"
 
-module DataLoader
+module ActiveRecordDataLoader
   class Loader
     class << self
       def load_data(
@@ -21,9 +21,9 @@ module DataLoader
 
       def strategy_class
         if ::ActiveRecord::Base.connection.raw_connection.respond_to?(:copy_data)
-          DataLoader::CopyStrategy
+          ActiveRecordDataLoader::CopyStrategy
         else
-          DataLoader::BulkInsertStrategy
+          ActiveRecordDataLoader::BulkInsertStrategy
         end
       end
     end

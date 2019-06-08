@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-module DataLoader
+module ActiveRecordDataLoader
   module Dsl
     class Definition
       attr_reader :models
 
-      def initialize(config = DataLoader.configuration)
+      def initialize(config = ActiveRecordDataLoader.configuration)
         @models = []
         @config = config
       end

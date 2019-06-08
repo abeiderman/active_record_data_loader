@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DataLoader
+module ActiveRecordDataLoader
   module Dsl
     class Model
       attr_reader :klass, :columns, :row_count, :polymorphic_associations

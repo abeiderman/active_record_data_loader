@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe DataLoader::ActiveRecord::BelongsToConfiguration, :connects_to_db do
+RSpec.describe ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration, :connects_to_db do
   subject(:config) do
-    DataLoader::ActiveRecord::BelongsToConfiguration.config_for(ar_association: ar_association)
+    ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration.config_for(ar_association: ar_association)
   end
 
   context "when it is a non-polymorphic belongs_to association" do
@@ -38,14 +38,14 @@ RSpec.describe DataLoader::ActiveRecord::BelongsToConfiguration, :connects_to_db
 
     it "clears the cache when retrieving another config set" do
       Order.create!(id: 1)
-      first_config = DataLoader::ActiveRecord::BelongsToConfiguration.config_for(
+      first_config = ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration.config_for(
         ar_association: ar_association
       )
       first_generated_id = first_config[:order_id].call
 
       Order.find(1).delete
       Order.create!(id: 2)
-      second_config = DataLoader::ActiveRecord::BelongsToConfiguration.config_for(
+      second_config = ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration.config_for(
         ar_association: ar_association
       )
       second_generated_id = second_config[:order_id].call

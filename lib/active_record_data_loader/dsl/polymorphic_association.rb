@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DataLoader
+module ActiveRecordDataLoader
   module Dsl
     class PolymorphicAssociation
       attr_reader :model_class, :name, :models

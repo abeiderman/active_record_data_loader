@@ -1,19 +1,21 @@
-# DataLoader
+# ActiveRecord Data Loader
 
 [![Build Status](https://travis-ci.org/abeiderman/active_record_data_loader.svg?branch=master)](https://travis-ci.org/abeiderman/active_record_data_loader)
 [![Coverage Status](https://coveralls.io/repos/github/abeiderman/active_record_data_loader/badge.svg?branch=master)](https://coveralls.io/github/abeiderman/active_record_data_loader?branch=master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/338904b3f7e8d19a3cb1/maintainability)](https://codeclimate.com/github/abeiderman/active_record_data_loader/maintainability)
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/active_record_data_loader`. To experiment with that code, run `bin/console` for an interactive prompt.
+Efficiently bulk load data for your ActiveRecord models with a simple DSL.
 
-TODO: Delete this and the text above, and describe your gem
+## Why?
+
+Load, performance, and stress tests often require setting up a realistic amount of data in your database. This gem is intended to help organize that data load and make it more maintainable than having a collection of SQL scripts.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'active_record_data_loader'
+gem "active_record_data_loader"
 ```
 
 And then execute:
@@ -44,4 +46,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the DataLoader project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/abeiderman/active_record_data_loader/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the ActiveRecord Data Loader project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/abeiderman/active_record_data_loader/blob/master/CODE_OF_CONDUCT.md).

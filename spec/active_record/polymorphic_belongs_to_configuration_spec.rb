@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-RSpec.describe DataLoader::ActiveRecord::PolymorphicBelongsToConfiguration, :connects_to_db do
+RSpec.describe ActiveRecordDataLoader::ActiveRecord::PolymorphicBelongsToConfiguration, :connects_to_db do
   subject(:config) do
-    DataLoader::ActiveRecord::PolymorphicBelongsToConfiguration.config_for(
+    ActiveRecordDataLoader::ActiveRecord::PolymorphicBelongsToConfiguration.config_for(
       polymorphic_settings: settings
     )
   end
 
   context "when it is a polymorphic belongs_to association" do
     let(:settings) do
-      DataLoader::Dsl::PolymorphicAssociation.new(Order, :person).tap do |a|
+      ActiveRecordDataLoader::Dsl::PolymorphicAssociation.new(Order, :person).tap do |a|
         a.model(Customer)
         a.model(Employee)
       end
@@ -61,14 +61,14 @@ RSpec.describe DataLoader::ActiveRecord::PolymorphicBelongsToConfiguration, :con
 
     it "clears the cache when retrieving another config set" do
       Customer.create!(id: 1)
-      first_config = DataLoader::ActiveRecord::PolymorphicBelongsToConfiguration.config_for(
+      first_config = ActiveRecordDataLoader::ActiveRecord::PolymorphicBelongsToConfiguration.config_for(
         polymorphic_settings: settings
       )
       first_generated_id = first_config[:person_id].call(0)
 
       Customer.find(1).delete
       Customer.create!(id: 2)
-      second_config = DataLoader::ActiveRecord::PolymorphicBelongsToConfiguration.config_for(
+      second_config = ActiveRecordDataLoader::ActiveRecord::PolymorphicBelongsToConfiguration.config_for(
         polymorphic_settings: settings
       )
       second_generated_id = second_config[:person_id].call(0)
@@ -89,7 +89,7 @@ RSpec.describe DataLoader::ActiveRecord::PolymorphicBelongsToConfiguration, :con
 
   context "when it is a non-polymorphic belongs_to association" do
     let(:settings) do
-      DataLoader::Dsl::PolymorphicAssociation.new(Payment, :order)
+      ActiveRecordDataLoader::Dsl::PolymorphicAssociation.new(Payment, :order)
     end
 
     it "raises an error" do

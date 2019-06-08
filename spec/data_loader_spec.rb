@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-RSpec.describe DataLoader, :connects_to_db do
+RSpec.describe ActiveRecordDataLoader, :connects_to_db do
   describe "DSL" do
     let(:loader) do
-      DataLoader.define do
+      ActiveRecordDataLoader.define do
         date_range = (Date.new(2016, 1, 1)..Date.current).to_a.freeze
 
         model Company do |m|

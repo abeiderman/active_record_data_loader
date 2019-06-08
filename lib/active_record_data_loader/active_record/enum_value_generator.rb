@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DataLoader
+module ActiveRecordDataLoader
   module ActiveRecord
     class EnumValueGenerator
       class << self

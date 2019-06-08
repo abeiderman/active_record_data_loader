@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DataLoader::ActiveRecord::ModelDataGenerator, :connects_to_db do
+RSpec.describe ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator, :connects_to_db do
   let(:column_settings) { {} }
   let(:polymorphic_settings) { [] }
   let(:model) { Employee }
@@ -94,7 +94,7 @@ RSpec.describe DataLoader::ActiveRecord::ModelDataGenerator, :connects_to_db do
       let(:model) { Order }
       let(:polymorphic_settings) do
         [
-          DataLoader::Dsl::PolymorphicAssociation.new(Order, :person).tap do |a|
+          ActiveRecordDataLoader::Dsl::PolymorphicAssociation.new(Order, :person).tap do |a|
             a.model(Customer)
           end,
         ]

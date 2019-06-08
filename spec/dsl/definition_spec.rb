@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe DataLoader::Dsl::Definition do
+RSpec.describe ActiveRecordDataLoader::Dsl::Definition do
   let(:configuration) do
-    DataLoader::Configuration.new(default_row_count: 50, default_batch_size: 1_000)
+    ActiveRecordDataLoader::Configuration.new(default_row_count: 50, default_batch_size: 1_000)
   end
   subject(:definition) { described_class.new(configuration) }
 

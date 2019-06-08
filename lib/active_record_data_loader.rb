@@ -18,20 +18,20 @@ require "active_record_data_loader/copy_strategy"
 require "active_record_data_loader/bulk_insert_strategy"
 require "active_record_data_loader/loader"
 
-module DataLoader
-  def self.define(config = DataLoader.configuration, &block)
+module ActiveRecordDataLoader
+  def self.define(config = ActiveRecordDataLoader.configuration, &block)
     LoaderProxy.new(
       configuration,
-      DataLoader::Dsl::Definition.new(config).tap { |l| l.instance_eval(&block) }
+      ActiveRecordDataLoader::Dsl::Definition.new(config).tap { |l| l.instance_eval(&block) }
     )
   end
 
   def self.configure(&block)
-    @configuration = DataLoader::Configuration.new.tap { |c| block.call(c) }
+    @configuration = ActiveRecordDataLoader::Configuration.new.tap { |c| block.call(c) }
   end
 
   def self.configuration
-    @configuration ||= DataLoader::Configuration.new
+    @configuration ||= ActiveRecordDataLoader::Configuration.new
   end
 
   class LoaderProxy
@@ -42,13 +42,13 @@ module DataLoader
 
     def load_data
       definition.models.map do |m|
-        generator = DataLoader::ActiveRecord::ModelDataGenerator.new(
+        generator = ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator.new(
           model: m.klass,
           column_settings: m.columns,
           polymorphic_settings: m.polymorphic_associations
         )
 
-        DataLoader::Loader.load_data(
+        ActiveRecordDataLoader::Loader.load_data(
           data_generator: generator,
           batch_size: m.batch_size,
           total_rows: m.row_count,

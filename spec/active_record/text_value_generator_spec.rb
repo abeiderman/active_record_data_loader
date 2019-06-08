@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe DataLoader::ActiveRecord::TextValueGenerator, :connects_to_db do
+RSpec.describe ActiveRecordDataLoader::ActiveRecord::TextValueGenerator, :connects_to_db do
   let(:model) { Employee }
   let(:generator) { described_class.generator_for(model_class: model, ar_column: ar_column) }
   subject(:value) { generator.call }

@@ -36,7 +36,7 @@ RSpec.configure do |config|
   ActiveRecord::Base.logger = logger
   ActiveRecord::Migration.verbose = false
 
-  DataLoader.configure do |c|
+  ActiveRecordDataLoader.configure do |c|
     c.logger = logger
   end
 end

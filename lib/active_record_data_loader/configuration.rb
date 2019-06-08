@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module DataLoader
+module ActiveRecordDataLoader
   class Configuration
     attr_accessor :default_batch_size, :default_row_count, :logger
 

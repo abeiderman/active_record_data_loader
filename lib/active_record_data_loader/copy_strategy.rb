@@ -3,7 +3,7 @@
 require "csv"
 require "benchmark"
 
-module DataLoader
+module ActiveRecordDataLoader
   class CopyStrategy
     def initialize(data_generator)
       @data_generator = data_generator

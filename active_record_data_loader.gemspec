@@ -6,7 +6,7 @@ require "active_record_data_loader/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "active_record_data_loader"
-  spec.version       = DataLoader::VERSION
+  spec.version       = ActiveRecordDataLoader::VERSION
   spec.authors       = ["Alejandro Beiderman"]
   spec.email         = ["abeiderman@gmail.com"]
 
