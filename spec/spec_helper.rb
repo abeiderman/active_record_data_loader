@@ -4,7 +4,7 @@ require "bundler/setup"
 require "rspec/collection_matchers"
 require "pry"
 require "coveralls"
-Coveralls.wear!
+Coveralls.wear_merged!
 
 require "active_record_data_loader"
 require File.join(__dir__, "active_record_helper")
