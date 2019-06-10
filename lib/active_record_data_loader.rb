@@ -2,8 +2,8 @@
 
 require "active_record_data_loader/version"
 require "active_record"
-require "faker"
 require "active_record_data_loader/configuration"
+require "active_record_data_loader/data_faker"
 require "active_record_data_loader/active_record/integer_value_generator"
 require "active_record_data_loader/active_record/text_value_generator"
 require "active_record_data_loader/active_record/enum_value_generator"

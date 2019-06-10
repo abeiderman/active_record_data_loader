@@ -8,3 +8,4 @@ before_install: gem install bundler -v 1.16.1
 before_script:
   - psql -c 'create database test;' -U postgres
   - cp config/database.yml.travis config/database.yml
+script: ./script/ci_build.sh

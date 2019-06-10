@@ -4,11 +4,11 @@ module ActiveRecordDataLoader
   module ActiveRecord
     class TextValueGenerator
       GENERATORS = {
-        likely_a_person_full_name?: -> { Faker::Name.name },
-        likely_a_first_name?: -> { Faker::Name.first_name },
-        likely_a_middle_name?: -> { Faker::Name.middle_name },
-        likely_a_last_name?: -> { Faker::Name.last_name },
-        likely_an_organization_name?: -> { Faker::Company.name },
+        likely_a_person_full_name?: -> { ActiveRecordDataLoader::DataFaker.person_name },
+        likely_a_first_name?: -> { ActiveRecordDataLoader::DataFaker.first_name },
+        likely_a_middle_name?: -> { ActiveRecordDataLoader::DataFaker.middle_name },
+        likely_a_last_name?: -> { ActiveRecordDataLoader::DataFaker.last_name },
+        likely_an_organization_name?: -> { ActiveRecordDataLoader::DataFaker.company_name },
       }.freeze
 
       class << self

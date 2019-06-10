@@ -6,11 +6,11 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::TextValueGenerator, :connec
   subject(:value) { generator.call }
 
   before do
-    allow(Faker::Name).to receive(:name).and_return("Mary Smith")
-    allow(Faker::Name).to receive(:first_name).and_return("Mary")
-    allow(Faker::Name).to receive(:middle_name).and_return("Joe")
-    allow(Faker::Name).to receive(:last_name).and_return("Smith")
-    allow(Faker::Company).to receive(:name).and_return("ACME")
+    allow(ActiveRecordDataLoader::DataFaker).to receive(:person_name).and_return("Mary Smith")
+    allow(ActiveRecordDataLoader::DataFaker).to receive(:first_name).and_return("Mary")
+    allow(ActiveRecordDataLoader::DataFaker).to receive(:middle_name).and_return("Joe")
+    allow(ActiveRecordDataLoader::DataFaker).to receive(:last_name).and_return("Smith")
+    allow(ActiveRecordDataLoader::DataFaker).to receive(:company_name).and_return("ACME")
   end
 
   context "when the column name is 'name'" do
