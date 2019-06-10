@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require "csv"
-require "benchmark"
-
 module ActiveRecordDataLoader
   class CopyStrategy
     def initialize(data_generator)
