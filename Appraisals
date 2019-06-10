@@ -4,10 +4,6 @@ appraise "activerecord-5" do
   gem "activerecord", "~> 5.0"
 end
 
-appraise "activerecord-6" do
-  gem "activerecord", "6.0.0.rc1"
-end
-
 appraise "faker" do
   gem "faker", ">= 1.9.3"
 end
