@@ -2,11 +2,12 @@
 
 require "bundler/setup"
 require "rspec/collection_matchers"
-require "active_record_data_loader"
 require "pry"
-require File.join(__dir__, "active_record_helper")
 require "coveralls"
 Coveralls.wear!
+
+require "active_record_data_loader"
+require File.join(__dir__, "active_record_helper")
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
