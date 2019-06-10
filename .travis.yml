@@ -4,6 +4,10 @@ rvm:
   - 2.4.3
 services:
   - postgresql
+env:
+  - COVERALLS_PARALLEL=true
+notifications:
+  webhooks: https://coveralls.io/webhook
 before_install: gem install bundler -v 1.16.1
 before_script:
   - psql -c 'create database test;' -U postgres
