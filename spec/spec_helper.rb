@@ -3,7 +3,9 @@
 require "bundler/setup"
 require "rspec/collection_matchers"
 require "pry"
+require "simplecov"
 require "coveralls"
+SimpleCov.command_name "specs:#{ENV['BUNDLE_GEMFILE']}"
 Coveralls.wear_merged!
 
 require "active_record_data_loader"
