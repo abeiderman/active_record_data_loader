@@ -41,5 +41,6 @@ RSpec.configure do |config|
 
   ActiveRecordDataLoader.configure do |c|
     c.logger = logger
+    c.statement_timeout = "5min"
   end
 end

@@ -6,9 +6,7 @@ module ActiveRecordDataLoader
       @data_generator = data_generator
     end
 
-    def load_batch(row_numbers)
-      connection = ::ActiveRecord::Base.connection
-
+    def load_batch(row_numbers, connection)
       connection.insert(<<~SQL)
         INSERT INTO #{quoted_table_name(connection)} (#{column_list(connection)})
         VALUES #{values(row_numbers, connection)}

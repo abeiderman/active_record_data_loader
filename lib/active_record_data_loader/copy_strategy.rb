@@ -6,11 +6,11 @@ module ActiveRecordDataLoader
       @data_generator = data_generator
     end
 
-    def load_batch(row_numbers)
-      csv_data = csv_data_batch(row_numbers)
+    def load_batch(row_numbers, connection)
+      csv_data = csv_data_batch(row_numbers, connection)
 
-      connection = ::ActiveRecord::Base.connection.raw_connection
-      connection.copy_data(copy_command) { connection.put_copy_data(csv_data) }
+      raw_connection = connection.raw_connection
+      raw_connection.copy_data(copy_command(connection)) { raw_connection.put_copy_data(csv_data) }
     end
 
     def table_name
@@ -25,18 +25,18 @@ module ActiveRecordDataLoader
 
     attr_reader :data_generator
 
-    def csv_data_batch(row_numbers)
+    def csv_data_batch(row_numbers, connection)
       row_numbers.map do |i|
-        data_generator.generate_row(i).map { |d| quote_data(d) }.join(",")
+        data_generator.generate_row(i).map { |d| quote_data(d, connection) }.join(",")
       end.join("\n")
     end
 
-    def copy_command
+    def copy_command(connection)
       @copy_command ||= begin
-        quoted_table_name = ::ActiveRecord::Base.connection.quote_table_name(data_generator.table)
+        quoted_table_name = connection.quote_table_name(data_generator.table)
         columns = data_generator
                   .column_list
-                  .map { |c| ::ActiveRecord::Base.connection.quote_column_name(c) }
+                  .map { |c| connection.quote_column_name(c) }
                   .join(", ")
 
         <<~SQL
@@ -46,10 +46,10 @@ module ActiveRecordDataLoader
       end
     end
 
-    def quote_data(data)
+    def quote_data(data, connection)
       return if data.nil?
 
-      "\"#{::ActiveRecord::Base.connection.quote_string(data.to_s)}\""
+      "\"#{connection.quote_string(data.to_s)}\""
     end
   end
 end

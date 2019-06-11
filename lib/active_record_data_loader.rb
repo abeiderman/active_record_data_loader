@@ -54,7 +54,7 @@ module ActiveRecordDataLoader
           data_generator: generator,
           batch_size: m.batch_size,
           total_rows: m.row_count,
-          logger: configuration.logger
+          configuration: configuration
         )
       end
     end
