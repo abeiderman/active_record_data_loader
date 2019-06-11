@@ -3,7 +3,7 @@
 module ActiveRecordDataLoader
   module Dsl
     class Model
-      attr_reader :klass, :columns, :row_count, :polymorphic_associations
+      attr_reader :klass, :columns, :row_count, :polymorphic_associations, :belongs_to_associations
 
       def initialize(klass:, configuration:)
         @klass = klass
@@ -11,6 +11,7 @@ module ActiveRecordDataLoader
         @row_count = configuration.default_row_count
         @batch_size = configuration.default_batch_size
         @polymorphic_associations = []
+        @belongs_to_associations = []
       end
 
       def count(count)
@@ -29,6 +30,10 @@ module ActiveRecordDataLoader
         @polymorphic_associations << PolymorphicAssociation.new(
           @klass, assoc_name
         ).tap { |a| block.call(a) }
+      end
+
+      def belongs_to(assoc_name, eligible_set:)
+        @belongs_to_associations << BelongsToAssociation.new(@klass, assoc_name, eligible_set)
       end
     end
   end

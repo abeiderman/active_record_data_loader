@@ -11,6 +11,7 @@ require "active_record_data_loader/active_record/column_configuration"
 require "active_record_data_loader/active_record/belongs_to_configuration"
 require "active_record_data_loader/active_record/polymorphic_belongs_to_configuration"
 require "active_record_data_loader/active_record/model_data_generator"
+require "active_record_data_loader/dsl/belongs_to_association"
 require "active_record_data_loader/dsl/polymorphic_association"
 require "active_record_data_loader/dsl/model"
 require "active_record_data_loader/dsl/definition"
@@ -45,7 +46,8 @@ module ActiveRecordDataLoader
         generator = ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator.new(
           model: m.klass,
           column_settings: m.columns,
-          polymorphic_settings: m.polymorphic_associations
+          polymorphic_settings: m.polymorphic_associations,
+          belongs_to_settings: m.belongs_to_associations
         )
 
         ActiveRecordDataLoader::Loader.load_data(

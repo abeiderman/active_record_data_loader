@@ -5,11 +5,12 @@ module ActiveRecordDataLoader
     class ModelDataGenerator
       attr_reader :table
 
-      def initialize(model:, column_settings:, polymorphic_settings: [])
+      def initialize(model:, column_settings:, polymorphic_settings: [], belongs_to_settings: [])
         @model_class = model
         @table = model.table_name
-        @polymorphic_settings = polymorphic_settings
         @column_settings = column_settings
+        @polymorphic_settings = polymorphic_settings
+        @belongs_to_settings = belongs_to_settings.map { |s| [s.name, s.query] }.to_h
       end
 
       def column_list
@@ -58,7 +59,9 @@ module ActiveRecordDataLoader
           .reflect_on_all_associations
           .select(&:belongs_to?)
           .reject(&:polymorphic?)
-          .map { |assoc| BelongsToConfiguration.config_for(ar_association: assoc) }
+          .map do |assoc|
+            BelongsToConfiguration.config_for(ar_association: assoc, query: @belongs_to_settings[assoc.name])
+          end
           .reduce({}, :merge)
       end
 

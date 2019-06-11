@@ -34,6 +34,7 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
           m.count 1_000
 
           m.column :date, -> { date_range.sample }
+          m.belongs_to :order, eligible_set: -> { Order.where(order_kind: "web") }
         end
       end
     end
@@ -60,6 +61,7 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
       expect(Payment.all).to have(1_000).items
       expect(Order.where(person_type: "Customer").count).to be_between(985, 995)
       expect(Order.where(person_type: "Employee").count).to be_between(5, 15)
+      expect(Payment.includes(:order).all.pluck("orders.order_kind").uniq).to eq(["web"])
     end
   end
 end

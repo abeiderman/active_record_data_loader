@@ -45,7 +45,7 @@ class ActiveRecordHelper
           if ActiveRecordHelper.postgres?
             t.column :order_kind, :order_kinds
           else
-            t.text :order_kinds
+            t.text :order_kind
           end
           t.text :notes
         end

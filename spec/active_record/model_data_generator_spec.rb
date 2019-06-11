@@ -3,12 +3,14 @@
 RSpec.describe ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator, :connects_to_db do
   let(:column_settings) { {} }
   let(:polymorphic_settings) { [] }
+  let(:belongs_to_settings) { [] }
   let(:model) { Employee }
   subject(:generator) do
     described_class.new(
       model: model,
       column_settings: column_settings,
-      polymorphic_settings: polymorphic_settings
+      polymorphic_settings: polymorphic_settings,
+      belongs_to_settings: belongs_to_settings
     )
   end
 
@@ -87,6 +89,28 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator, :connec
 
         row_hash = generator.column_list.zip(row).to_h
         expect(row_hash[:order_id]).to eq(10)
+      end
+
+      context "when given belongs_to settings" do
+        let(:belongs_to_settings) do
+          [
+            ActiveRecordDataLoader::Dsl::BelongsToAssociation.new(
+              Payment,
+              :order,
+              -> { Order.where(order_kind: "phone") }
+            ),
+          ]
+        end
+
+        it "uses the provided query to limit the set" do
+          10.times { Order.create!(order_kind: "store") }
+          phone_order = Order.create!(order_kind: "phone")
+
+          rows = 10.times.map { generator.generate_row(0) }
+
+          row_hashes = rows.map { |r| generator.column_list.zip(r).to_h }
+          expect(row_hashes.map { |r| r[:order_id] }.uniq).to eq([phone_order.id])
+        end
       end
     end
 

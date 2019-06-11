@@ -57,6 +57,23 @@ RSpec.describe ActiveRecordDataLoader::Dsl::Definition do
       )
     end
 
+    it "captures a belongs to association with a custom query" do
+      query = -> { Order.where(name: "Phone") }
+
+      definition.model(Payment) do |m|
+        m.belongs_to :order, eligible_set: query
+      end
+
+      expect(definition.models).to have(1).item
+      model = definition.models.last
+      expect(model.belongs_to_associations).to have(1).item
+      expect(model.belongs_to_associations.last).to have_attributes(
+        model_class: Payment,
+        name: :order,
+        query: query
+      )
+    end
+
     it "can capture multiple models" do
       definition.model(Company) { |m| m.count 10 }
       definition.model(Customer) { |m| m.count 100 }

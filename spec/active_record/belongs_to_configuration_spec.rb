@@ -25,6 +25,19 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration, :co
       expect(ids).to include(*generated_ids)
     end
 
+    it "uses the provided query when not nil" do
+      config = ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration.config_for(
+        ar_association: ar_association,
+        query: -> { Order.where(order_kind: "web") }
+      )
+      10.times { Order.create!(order_kind: "phone") }
+      web_order = Order.create!(order_kind: "web")
+
+      generated_ids = 100.times.map { config[:order_id].call }.uniq
+
+      expect(generated_ids).to eq([web_order.id])
+    end
+
     it "caches the IDs from the association" do
       10.times { Order.create! }
       allow(Order).to receive(:all).and_call_original
