@@ -19,7 +19,7 @@ module ActiveRecordDataLoader
     private
 
     def default_logger
-      if defined?(Rails) && Rails.respond_to?(logger)
+      if defined?(Rails) && Rails.respond_to?(:logger)
         Rails.logger
       else
         Logger.new(STDOUT, level: :info)
