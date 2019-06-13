@@ -3,11 +3,9 @@
 require "bundler/setup"
 require "rspec/collection_matchers"
 require "pry"
-require "simplecov"
 require "coveralls"
 require "rails" if Gem.loaded_specs.key?("rails")
-SimpleCov.command_name "specs:#{ENV['BUNDLE_GEMFILE']}"
-Coveralls.wear_merged!
+Coveralls.wear!
 
 require "active_record_data_loader"
 require File.join(__dir__, "active_record_helper")
