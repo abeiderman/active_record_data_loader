@@ -39,6 +39,7 @@ module ActiveRecordDataLoader
       batch_count = (total_rows / batch_size.to_f).ceil
 
       logger.info(
+        "[ActiveRecordDataLoader] "\
         "Loading #{total_rows} row(s) into '#{strategy.table_name}' via #{strategy.name}. "\
         "#{batch_size} row(s) per batch, #{batch_count} batch(es)."
       )
@@ -46,6 +47,7 @@ module ActiveRecordDataLoader
         load_in_batches(batch_size, total_rows, batch_count)
       end
       logger.info(
+        "[ActiveRecordDataLoader] "\
         "Completed loading #{total_rows} row(s) into '#{strategy.table_name}' "\
         "in #{total_time} seconds."
       )
@@ -61,6 +63,7 @@ module ActiveRecordDataLoader
           time = Benchmark.realtime { strategy.load_batch(row_numbers, connection) }
 
           logger.debug(
+            "[ActiveRecordDataLoader] "\
             "Completed batch #{i + 1}/#{batch_count}, #{row_numbers.count} row(s) in #{time} seconds"
           )
         end
