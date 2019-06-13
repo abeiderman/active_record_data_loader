@@ -4,10 +4,15 @@ rvm:
   - 2.3.8
   - 2.4.6
   - 2.5.5
+gemfile:
+  - gemfiles/activerecord_5.gemfile
+  - gemfiles/rails.gemfile
+  - gemfiles/faker.gemfile
+  - gemfiles/ffaker.gemfile
 services:
   - postgresql
-before_install: gem install bundler -v 1.16.1
+before_install: "gem update --system && gem install bundler"
 before_script:
   - psql -c 'create database test;' -U postgres
   - cp config/database.yml.travis config/database.yml
-script: ./script/ci_build.sh
+script: "bundle exec rake"
