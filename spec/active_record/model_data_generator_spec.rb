@@ -133,6 +133,27 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator, :connec
         expect(row_hash[:person_id]).to eq(50)
         expect(row_hash[:person_type]).to eq("Customer")
       end
+
+      context "when given a query for a model" do
+        let(:polymorphic_settings) do
+          [
+            ActiveRecordDataLoader::Dsl::PolymorphicAssociation.new(Order, :person).tap do |a|
+              a.model(Customer, eligible_set: -> { Customer.where(business_name: "Initech") })
+            end,
+          ]
+        end
+
+        it "limits the set to the given query" do
+          Customer.create!(business_name: "Initech")
+          Customer.create!(business_name: "Acme")
+
+          rows = 50.times.map { generator.generate_row(0) }
+
+          row_hashes = rows.map { |r| generator.column_list.zip(r).to_h }
+          person_ids = row_hashes.map { |r| r[:person_id] }.uniq
+          expect(Customer.where(id: person_ids).pluck(:business_name).uniq).to eq(["Initech"])
+        end
+      end
     end
   end
 end

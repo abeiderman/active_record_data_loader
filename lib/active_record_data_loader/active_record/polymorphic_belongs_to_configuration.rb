@@ -38,10 +38,18 @@ module ActiveRecordDataLoader
       def possible_values
         @possible_values ||= begin
           values = @settings.models.keys.map do |klass|
-            [klass.name, klass.all.pluck(klass.primary_key).to_a]
+            [klass.name, base_query(klass).pluck(klass.primary_key).to_a]
           end.to_h
 
           @settings.weighted_models.map { |klass| [klass.name, values[klass.name]] }
+        end
+      end
+
+      def base_query(klass)
+        if @settings.queries[klass]&.respond_to?(:call)
+          @settings.queries[klass].call.all
+        else
+          klass.all
         end
       end
     end

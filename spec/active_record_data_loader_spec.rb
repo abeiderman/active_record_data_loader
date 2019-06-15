@@ -12,6 +12,7 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
 
         model Customer do |m|
           m.count 100
+          m.column :business_name, -> { %w[Acme Initech].sample }
         end
 
         model Employee do |m|
@@ -24,7 +25,7 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
           m.column :date, -> { date_range.sample }
 
           m.polymorphic :person do |p|
-            p.model Customer, weight: 100
+            p.model Customer, weight: 100, eligible_set: -> { Customer.where(business_name: "Acme") }
             p.model Employee, weight: 1
           end
         end
@@ -49,6 +50,11 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
       expect(Payment.all).to have(1_000).items
       expect(Order.where(person_type: "Customer").count).to be_between(985, 995)
       expect(Order.where(person_type: "Employee").count).to be_between(5, 15)
+      expect(
+        Customer.where(
+          id: Order.where(person_type: "Customer").pluck(:person_id)
+        ).pluck(:business_name).uniq
+      ).to eq(["Acme"])
     end
 
     it "loads data into postgres", :postgres do
@@ -62,6 +68,11 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
       expect(Order.where(person_type: "Customer").count).to be_between(985, 995)
       expect(Order.where(person_type: "Employee").count).to be_between(5, 15)
       expect(Payment.includes(:order).all.pluck("orders.order_kind").uniq).to eq(["web"])
+      expect(
+        Customer.where(
+          id: Order.where(person_type: "Customer").pluck(:person_id)
+        ).pluck(:business_name).uniq
+      ).to eq(["Acme"])
     end
   end
 end
