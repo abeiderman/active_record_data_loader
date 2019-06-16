@@ -13,9 +13,6 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator, :connec
       belongs_to_settings: belongs_to_settings
     )
   end
-  before do
-    ActiveRecordDataLoader::ActiveRecord::ColumnConfiguration.clear_caches
-  end
 
   describe "#generate_row" do
     context "when there are no given column settings" do

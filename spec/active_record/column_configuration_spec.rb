@@ -53,20 +53,4 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::ColumnConfiguration, :conne
       expect(config[:created_at].call(0)).to be_a(Time)
     end
   end
-
-  describe ".clear_caches" do
-    let(:ar_column) { Order.columns_hash["created_at"] }
-
-    it "clears global caches from value generators" do
-      Timecop.freeze(Time.new(2019, 6, 10, 11, 30)) do
-        config[:created_at].call(0)
-      end
-
-      described_class.clear_caches
-
-      Timecop.freeze(Time.new(2019, 6, 10, 12, 30)) do
-        expect(config[:created_at].call(0)).to eq(Time.new(2019, 6, 10, 12, 30))
-      end
-    end
-  end
 end

@@ -19,8 +19,6 @@ module ActiveRecordDataLoader
           -> { truncate_if_needed(generator.call, ar_column.limit) }
         end
 
-        def clear_cache; end
-
         private
 
         def truncate_if_needed(value, limit)

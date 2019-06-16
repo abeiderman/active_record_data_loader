@@ -29,10 +29,6 @@ module ActiveRecordDataLoader
           VALUE_GENERATORS.keys.include?(ar_column.type)
         end
 
-        def clear_caches
-          VALUE_GENERATORS.values.each(&:clear_cache)
-        end
-
         private
 
         def raise_error_if_not_supported(model_class, ar_column)

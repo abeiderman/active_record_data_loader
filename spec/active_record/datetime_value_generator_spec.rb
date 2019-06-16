@@ -7,7 +7,6 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::DatetimeValueGenerator, :co
   let(:updated_at_generator) do
     described_class.generator_for(model_class: Employee, ar_column: Employee.columns_hash["updated_at"])
   end
-  before { described_class.clear_cache }
 
   it "uses the current UTC timestamp" do
     time = Time.new(2019, 6, 10, 10, 30, 20).utc

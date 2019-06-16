@@ -4,6 +4,7 @@ require "active_record_data_loader/version"
 require "active_record"
 require "active_record_data_loader/configuration"
 require "active_record_data_loader/data_faker"
+require "active_record_data_loader/active_record/per_row_value_cache"
 require "active_record_data_loader/active_record/integer_value_generator"
 require "active_record_data_loader/active_record/text_value_generator"
 require "active_record_data_loader/active_record/enum_value_generator"
@@ -43,7 +44,7 @@ module ActiveRecordDataLoader
     end
 
     def load_data
-      ActiveRecordDataLoader::ActiveRecord::ColumnConfiguration.clear_caches
+      ActiveRecordDataLoader::ActiveRecord::PerRowValueCache.clear
 
       definition.models.map do |m|
         generator = ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator.new(
