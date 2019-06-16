@@ -10,6 +10,8 @@ module ActiveRecordDataLoader
           -> { rand(0..range_limit) }
         end
 
+        def clear_cache; end
+
         private
 
         def number_of_bytes(ar_column)

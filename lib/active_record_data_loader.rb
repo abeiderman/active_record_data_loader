@@ -7,6 +7,7 @@ require "active_record_data_loader/data_faker"
 require "active_record_data_loader/active_record/integer_value_generator"
 require "active_record_data_loader/active_record/text_value_generator"
 require "active_record_data_loader/active_record/enum_value_generator"
+require "active_record_data_loader/active_record/datetime_value_generator"
 require "active_record_data_loader/active_record/column_configuration"
 require "active_record_data_loader/active_record/belongs_to_configuration"
 require "active_record_data_loader/active_record/polymorphic_belongs_to_configuration"
@@ -42,6 +43,8 @@ module ActiveRecordDataLoader
     end
 
     def load_data
+      ActiveRecordDataLoader::ActiveRecord::ColumnConfiguration.clear_caches
+
       definition.models.map do |m|
         generator = ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator.new(
           model: m.klass,

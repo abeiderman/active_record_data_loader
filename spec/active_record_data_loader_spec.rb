@@ -40,39 +40,28 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
       end
     end
 
-    it "loads data into sqlite3", :sqlite3 do
-      loader.load_data
+    shared_examples_for "loading data" do |adapter|
+      it "loads data into #{adapter}", adapter do
+        loader.load_data
 
-      expect(Company.all).to have(10).items
-      expect(Customer.all).to have(100).items
-      expect(Employee.all).to have(100).items
-      expect(Order.all).to have(1_000).items
-      expect(Payment.all).to have(1_000).items
-      expect(Order.where(person_type: "Customer").count).to be_between(985, 995)
-      expect(Order.where(person_type: "Employee").count).to be_between(5, 15)
-      expect(
-        Customer.where(
-          id: Order.where(person_type: "Customer").pluck(:person_id)
-        ).pluck(:business_name).uniq
-      ).to eq(["Acme"])
+        expect(Company.all).to have(10).items
+        expect(Company.all.pluck(:created_at)).to all(be_within(10.minutes).of(Time.now))
+        expect(Company.all.pluck(:updated_at)).to all(be_within(10.minutes).of(Time.now))
+        expect(Customer.all).to have(100).items
+        expect(Employee.all).to have(100).items
+        expect(Order.all).to have(1_000).items
+        expect(Payment.all).to have(1_000).items
+        expect(Order.where(person_type: "Customer").count).to be_between(985, 995)
+        expect(Order.where(person_type: "Employee").count).to be_between(5, 15)
+        expect(
+          Customer.where(
+            id: Order.where(person_type: "Customer").pluck(:person_id)
+          ).pluck(:business_name).uniq
+        ).to eq(["Acme"])
+      end
     end
 
-    it "loads data into postgres", :postgres do
-      loader.load_data
-
-      expect(Company.all).to have(10).items
-      expect(Customer.all).to have(100).items
-      expect(Employee.all).to have(100).items
-      expect(Order.all).to have(1_000).items
-      expect(Payment.all).to have(1_000).items
-      expect(Order.where(person_type: "Customer").count).to be_between(985, 995)
-      expect(Order.where(person_type: "Employee").count).to be_between(5, 15)
-      expect(Payment.includes(:order).all.pluck("orders.order_kind").uniq).to eq(["web"])
-      expect(
-        Customer.where(
-          id: Order.where(person_type: "Customer").pluck(:person_id)
-        ).pluck(:business_name).uniq
-      ).to eq(["Acme"])
-    end
+    it_behaves_like "loading data", :sqlite3
+    it_behaves_like "loading data", :postgres
   end
 end

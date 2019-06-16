@@ -15,12 +15,16 @@ class ActiveRecordHelper
 
         create_table :companies, force: true do |t|
           t.text :name
+
+          t.timestamps
         end
 
         create_table :customers, force: true do |t|
           t.text :name
           t.text :company_name
           t.text :business_name
+
+          t.timestamps
         end
 
         create_table :employees, force: true do |t|
@@ -32,6 +36,8 @@ class ActiveRecordHelper
           t.integer :large_int, limit: 8
           t.integer :medium_int, limit: 4
           t.integer :small_int, limit: 2
+
+          t.timestamps
         end
 
         create_table :orders, force: true do |t|
@@ -48,6 +54,8 @@ class ActiveRecordHelper
             t.text :order_kind
           end
           t.text :notes
+
+          t.timestamps
         end
 
         create_table :payments, force: true do |t|
@@ -55,6 +63,8 @@ class ActiveRecordHelper
           t.date :date
           t.text :method
           t.decimal :amount
+
+          t.timestamps
         end
       end
 

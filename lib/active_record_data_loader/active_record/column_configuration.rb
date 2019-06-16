@@ -9,6 +9,7 @@ module ActiveRecordDataLoader
           integer: IntegerValueGenerator,
           string: TextValueGenerator,
           text: TextValueGenerator,
+          datetime: DatetimeValueGenerator,
         }.freeze
 
         def config_for(model_class:, ar_column:)
@@ -26,6 +27,10 @@ module ActiveRecordDataLoader
           return false if model_class.reflect_on_association(ar_column.name)
 
           VALUE_GENERATORS.keys.include?(ar_column.type)
+        end
+
+        def clear_caches
+          VALUE_GENERATORS.values.each(&:clear_cache)
         end
 
         private

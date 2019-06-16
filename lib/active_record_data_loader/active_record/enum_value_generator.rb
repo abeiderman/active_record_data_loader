@@ -9,6 +9,8 @@ module ActiveRecordDataLoader
           -> { values.sample }
         end
 
+        def clear_cache; end
+
         private
 
         def enum_values_for(model_class, enum_type)

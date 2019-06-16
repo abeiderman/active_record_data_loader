@@ -2,6 +2,7 @@
 
 require "bundler/setup"
 require "rspec/collection_matchers"
+require "timecop"
 require "pry"
 require "coveralls"
 require "rails" if Gem.loaded_specs.key?("rails")

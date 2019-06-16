@@ -13,6 +13,9 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator, :connec
       belongs_to_settings: belongs_to_settings
     )
   end
+  before do
+    ActiveRecordDataLoader::ActiveRecord::ColumnConfiguration.clear_caches
+  end
 
   describe "#generate_row" do
     context "when there are no given column settings" do
@@ -32,6 +35,8 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator, :connec
         expect(row_hash[:large_int]).to be_a(Integer)
         expect(row_hash[:medium_int]).to be_a(Integer)
         expect(row_hash[:small_int]).to be_a(Integer)
+        expect(row_hash[:created_at]).to be_within(2.minutes).of(Time.now.utc)
+        expect(row_hash[:updated_at]).to be_within(2.minutes).of(Time.now.utc)
       end
     end
 
