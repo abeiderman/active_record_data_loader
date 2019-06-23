@@ -30,7 +30,7 @@ module ActiveRecordDataLoader
             .compact
         end
 
-        def mysql_enum_values_for(model_class, enum_type)
+        def mysql_enum_values_for(_model_class, enum_type)
           enum_type
             .to_s
             .downcase
