@@ -26,6 +26,8 @@ RSpec.configure do |config|
     if example.metadata[:connects_to_db]
       if example.metadata[:sqlite3]
         ActiveRecordHelper.connect_to_sqlite3
+      elsif example.metadata[:mysql]
+        ActiveRecordHelper.connect_to_mysql
       else
         ActiveRecordHelper.connect_to_postgres
       end

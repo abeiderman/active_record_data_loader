@@ -5,3 +5,8 @@ postgres:
 sqlite3:
   adapter: "sqlite3"
   database: ":memory:"
+
+mysql:
+  adapter: "mysql2"
+  database: "test"
+  username: "travis"

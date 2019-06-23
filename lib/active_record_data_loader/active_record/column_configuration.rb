@@ -16,7 +16,7 @@ module ActiveRecordDataLoader
           raise_error_if_not_supported(model_class, ar_column)
 
           {
-            ar_column.name.to_sym => VALUE_GENERATORS[ar_column.type].generator_for(
+            ar_column.name.to_sym => VALUE_GENERATORS[column_type(ar_column)].generator_for(
               model_class: model_class,
               ar_column: ar_column
             ),
@@ -26,7 +26,7 @@ module ActiveRecordDataLoader
         def supported?(model_class:, ar_column:)
           return false if model_class.reflect_on_association(ar_column.name)
 
-          VALUE_GENERATORS.keys.include?(ar_column.type)
+          VALUE_GENERATORS.keys.include?(column_type(ar_column))
         end
 
         private
@@ -37,6 +37,14 @@ module ActiveRecordDataLoader
           raise <<~ERROR
             Column '#{ar_column.name}' of type '#{ar_column.type}' in model '#{model_class.name}' not supported"
           ERROR
+        end
+
+        def column_type(ar_column)
+          if ar_column.type == :string && ar_column.sql_type.to_s.downcase.start_with?("enum")
+            :enum
+          else
+            ar_column.type
+          end
         end
       end
     end

@@ -63,5 +63,6 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
 
     it_behaves_like "loading data", :sqlite3
     it_behaves_like "loading data", :postgres
+    it_behaves_like "loading data", :mysql
   end
 end

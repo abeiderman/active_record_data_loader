@@ -8,3 +8,10 @@ postgres:
 sqlite3:
   adapter: "sqlite3"
   database: ":memory:"
+
+mysql:
+  adapter: "mysql2"
+  host: "127.0.0.1"
+  database: "test"
+  username: "test"
+  password: "test"

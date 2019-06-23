@@ -50,6 +50,8 @@ class ActiveRecordHelper
           t.integer :person_id
           if ActiveRecordHelper.postgres?
             t.column :order_kind, :order_kinds
+          elsif ActiveRecordHelper.mysql?
+            t.column :order_kind, "ENUM('store', 'phone', 'mail', 'web')"
           else
             t.text :order_kind
           end
@@ -75,12 +77,20 @@ class ActiveRecordHelper
       ActiveRecord::Base.connection.adapter_name.downcase.to_sym == :postgresql
     end
 
+    def mysql?
+      ActiveRecord::Base.connection.adapter_name.downcase.to_sym == :mysql2
+    end
+
     def connect_to_postgres
       ActiveRecord::Base.establish_connection(db_config["postgres"])
     end
 
     def connect_to_sqlite3
       ActiveRecord::Base.establish_connection(db_config["sqlite3"])
+    end
+
+    def connect_to_mysql
+      ActiveRecord::Base.establish_connection(db_config["mysql"])
     end
 
     def reset_column_information
