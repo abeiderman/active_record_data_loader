@@ -1,7 +1,13 @@
 # frozen_string_literal: true
 
 RSpec.describe ActiveRecordDataLoader::ActiveRecord::EnumValueGenerator, :connects_to_db do
-  subject(:generator) { described_class.generator_for(model_class: Order, ar_column: ar_column) }
+  subject(:generator) do
+    described_class.generator_for(
+      model_class: Order,
+      ar_column: ar_column,
+      connection_factory: -> { ::ActiveRecord::Base.connection }
+    )
+  end
 
   context "when it is a postgres enum", :postgres do
     let(:ar_column) { Order.columns_hash["order_kind"] }

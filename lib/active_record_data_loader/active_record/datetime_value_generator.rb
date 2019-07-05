@@ -4,7 +4,7 @@ module ActiveRecordDataLoader
   module ActiveRecord
     class DatetimeValueGenerator
       class << self
-        def generator_for(model_class:, ar_column:)
+        def generator_for(model_class:, ar_column:, connection_factory: nil)
           ->(row) { timestamp(model_class, row) }
         end
 

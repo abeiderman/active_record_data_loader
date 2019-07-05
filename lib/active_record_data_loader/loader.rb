@@ -14,14 +14,15 @@ module ActiveRecordDataLoader
         new(
           logger: configuration.logger,
           statement_timeout: configuration.statement_timeout,
-          strategy: strategy_class.new(data_generator)
+          strategy: strategy_class(configuration.connection_factory).new(data_generator),
+          connection_factory: configuration.connection_factory
         ).load_data(batch_size, total_rows)
       end
 
       private
 
-      def strategy_class
-        if ::ActiveRecord::Base.connection.raw_connection.respond_to?(:copy_data)
+      def strategy_class(connection_factory)
+        if connection_factory.call.raw_connection.respond_to?(:copy_data)
           ActiveRecordDataLoader::CopyStrategy
         else
           ActiveRecordDataLoader::BulkInsertStrategy
@@ -29,10 +30,11 @@ module ActiveRecordDataLoader
       end
     end
 
-    def initialize(logger:, statement_timeout:, strategy:)
+    def initialize(logger:, statement_timeout:, strategy:, connection_factory:)
       @logger = logger
       @strategy = strategy
       @statement_timeout = statement_timeout
+      @connection_factory = connection_factory
     end
 
     def load_data(batch_size, total_rows)
@@ -55,7 +57,7 @@ module ActiveRecordDataLoader
 
     private
 
-    attr_reader :strategy, :statement_timeout, :logger
+    attr_reader :strategy, :statement_timeout, :logger, :connection_factory
 
     def load_in_batches(batch_size, total_rows, batch_count)
       with_connection do |connection|
@@ -71,22 +73,26 @@ module ActiveRecordDataLoader
     end
 
     def with_connection
-      if ::ActiveRecord::Base.connection.adapter_name.downcase.to_sym == :postgresql
+      if connection.adapter_name.downcase.to_sym == :postgresql
         original_timeout = retrieve_statement_timeout
         update_statement_timeout(statement_timeout)
-        yield ::ActiveRecord::Base.connection
+        yield connection
         update_statement_timeout(original_timeout)
       else
-        yield ::ActiveRecord::Base.connection
+        yield connection
       end
     end
 
     def retrieve_statement_timeout
-      ::ActiveRecord::Base.connection.execute("SHOW statement_timeout").first["statement_timeout"]
+      connection.execute("SHOW statement_timeout").first["statement_timeout"]
     end
 
     def update_statement_timeout(timeout)
-      ::ActiveRecord::Base.connection.execute("SET statement_timeout = \"#{timeout}\"")
+      connection.execute("SET statement_timeout = \"#{timeout}\"")
+    end
+
+    def connection
+      connection_factory.call
     end
   end
 end

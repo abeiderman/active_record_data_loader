@@ -10,7 +10,8 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator, :connec
       model: model,
       column_settings: column_settings,
       polymorphic_settings: polymorphic_settings,
-      belongs_to_settings: belongs_to_settings
+      belongs_to_settings: belongs_to_settings,
+      connection_factory: -> { ::ActiveRecord::Base.connection }
     )
   end
 

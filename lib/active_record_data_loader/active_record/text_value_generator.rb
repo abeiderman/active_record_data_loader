@@ -12,7 +12,7 @@ module ActiveRecordDataLoader
       }.freeze
 
       class << self
-        def generator_for(model_class:, ar_column:)
+        def generator_for(model_class:, ar_column:, connection_factory: nil)
           scenario = GENERATORS.keys.find { |m| send(m, model_class, ar_column) }
           generator = GENERATORS.fetch(scenario, -> { SecureRandom.uuid })
 

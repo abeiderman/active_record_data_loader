@@ -5,7 +5,8 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::ColumnConfiguration, :conne
   let(:config) do
     ActiveRecordDataLoader::ActiveRecord::ColumnConfiguration.config_for(
       model_class: model_class,
-      ar_column: ar_column
+      ar_column: ar_column,
+      connection_factory: -> { ::ActiveRecord::Base.connection }
     )
   end
 

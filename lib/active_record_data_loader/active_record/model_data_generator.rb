@@ -5,12 +5,19 @@ module ActiveRecordDataLoader
     class ModelDataGenerator
       attr_reader :table
 
-      def initialize(model:, column_settings:, polymorphic_settings: [], belongs_to_settings: [])
+      def initialize(
+        model:,
+        column_settings:,
+        polymorphic_settings: [],
+        belongs_to_settings: [],
+        connection_factory:
+      )
         @model_class = model
         @table = model.table_name
         @column_settings = column_settings
         @polymorphic_settings = polymorphic_settings
         @belongs_to_settings = belongs_to_settings.map { |s| [s.name, s.query] }.to_h
+        @connection_factory = connection_factory
       end
 
       def column_list
@@ -50,7 +57,13 @@ module ActiveRecordDataLoader
           .columns_hash
           .reject { |name| name == @model_class.primary_key }
           .select { |_, c| ColumnConfiguration.supported?(model_class: @model_class, ar_column: c) }
-          .map { |_, c| ColumnConfiguration.config_for(model_class: @model_class, ar_column: c) }
+          .map do |_, c|
+            ColumnConfiguration.config_for(
+              model_class: @model_class,
+              ar_column: c,
+              connection_factory: @connection_factory
+            )
+          end
           .reduce({}, :merge)
       end
 

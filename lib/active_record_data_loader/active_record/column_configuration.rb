@@ -12,13 +12,14 @@ module ActiveRecordDataLoader
           datetime: DatetimeValueGenerator,
         }.freeze
 
-        def config_for(model_class:, ar_column:)
+        def config_for(model_class:, ar_column:, connection_factory:)
           raise_error_if_not_supported(model_class, ar_column)
 
           {
             ar_column.name.to_sym => VALUE_GENERATORS[column_type(ar_column)].generator_for(
               model_class: model_class,
-              ar_column: ar_column
+              ar_column: ar_column,
+              connection_factory: connection_factory
             ),
           }
         end
