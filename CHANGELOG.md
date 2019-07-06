@@ -1,5 +1,13 @@
 # Change log
 
+## [v1.0.2] - 2019-07-05
+
+[Diff](https://github.com/abeiderman/active_record_data_loader/compare/v1.0.1...v1.0.2)
+
+### Enhancements:
+* Add support for MySQL enums
+* Accept a connection factory lambda as part of the configuration
+
 ## [v1.0.1] - 2019-06-16
 
 [Diff](https://github.com/abeiderman/active_record_data_loader/compare/v1.0.0...v1.0.1)
