@@ -1,4 +1,4 @@
-# ActiveRecord Data Loader
+# active_record_data_loader
 
 [![Build Status](https://travis-ci.org/abeiderman/active_record_data_loader.svg?branch=master)](https://travis-ci.org/abeiderman/active_record_data_loader)
 [![Coverage Status](https://coveralls.io/repos/github/abeiderman/active_record_data_loader/badge.svg?branch=master&service=github)](https://coveralls.io/github/abeiderman/active_record_data_loader?branch=master)
@@ -9,6 +9,10 @@ Efficiently bulk load data for your ActiveRecord models with a simple DSL.
 ## Why?
 
 Load, performance, and stress tests often require setting up a realistic amount of data in your database. This gem is intended to help organize that data load and make it more maintainable than having a collection of SQL scripts.
+
+#### How is this different from using _factory_bot_?
+
+This gem is not a replacement for [factory_bot](https://github.com/thoughtbot/factory_bot). It solves a different use case. While _factory_bot_ is great for organizing test data and reducing duplication in your functional tests, _active_record_data_loader_ is focused around bulk loading data for performance tests. The purpose of _active_record_data_loader_ is loading large amounts of data as efficiently as possible while providing a DSL that helps with maintainability.
 
 ## Installation
 
@@ -220,4 +224,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the ActiveRecord Data Loader project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/abeiderman/active_record_data_loader/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the _active_record_data_loader_ project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/abeiderman/active_record_data_loader/blob/master/CODE_OF_CONDUCT.md).
