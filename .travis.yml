@@ -3,9 +3,10 @@ language: ruby
 env:
   - COVERALLS_PARALLEL=true
 rvm:
-  - 2.4.6
-  - 2.5.5
-  - 2.6.3
+  - 2.4.10
+  - 2.5.8
+  - 2.6.6
+  - 2.7.2
 gemfile:
   - gemfiles/activerecord_5.gemfile
   - gemfiles/rails.gemfile
