@@ -22,4 +22,12 @@ before_script:
   - psql -c 'create database test;' -U postgres
   - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
   - cp config/database.yml.travis config/database.yml
+jobs:
+  exclude:
+    - rvm: 2.4.10
+      gemfile: gemfiles/rails.gemfile
+    - rvm: 2.4.10
+      gemfile: gemfiles/faker.gemfile
+    - rvm: 2.4.10
+      gemfile: gemfiles/ffaker.gemfile
 script: "bundle exec rake"
