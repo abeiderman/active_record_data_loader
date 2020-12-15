@@ -46,7 +46,7 @@ module ActiveRecordDataLoader
       end
 
       def base_query(klass)
-        if @settings.queries[klass]&.respond_to?(:call)
+        if @settings.queries[klass].respond_to?(:call)
           @settings.queries[klass].call.all
         else
           klass.all

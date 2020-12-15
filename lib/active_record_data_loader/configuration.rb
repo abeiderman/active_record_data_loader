@@ -24,7 +24,7 @@ module ActiveRecordDataLoader
       if defined?(Rails) && Rails.respond_to?(:logger)
         Rails.logger
       else
-        Logger.new(STDOUT, level: :info)
+        Logger.new($stdout, level: :info)
       end
     end
   end

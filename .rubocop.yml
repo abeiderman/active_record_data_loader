@@ -1,5 +1,10 @@
 AllCops:
   TargetRubyVersion: 2.4
+  NewCops: enable
+
+Layout/LineLength:
+  Max: 110
+  Exclude: ["*.gemspec"]
 
 Layout/SpaceAroundMethodCallOperator:
   Enabled: true
@@ -20,13 +25,15 @@ Metrics/AbcSize:
 Metrics/BlockLength:
   Exclude: ["spec/**/*", "*.gemspec"]
 
-Metrics/LineLength:
-  Max: 110
-  Exclude: ["*.gemspec"]
-
 Metrics/MethodLength:
   Max: 15
   Exclude: ["spec/**/*"]
+
+Style/CaseLikeIf:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
 
 Style/ExponentialNotation:
   Enabled: true
@@ -42,9 +49,6 @@ Style/HashTransformKeys:
 
 Style/HashTransformValues:
   Enabled: true
-
-Style/Documentation:
-  Enabled: false
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes

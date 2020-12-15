@@ -25,7 +25,7 @@ module ActiveRecordDataLoader
       end
 
       def base_query
-        if @query&.respond_to?(:call)
+        if @query.respond_to?(:call)
           @query.call.all
         else
           @ar_association.klass.all

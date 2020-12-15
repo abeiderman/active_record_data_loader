@@ -8,9 +8,9 @@ module ActiveRecordDataLoader
       def initialize(
         model:,
         column_settings:,
+        connection_factory:,
         polymorphic_settings: [],
-        belongs_to_settings: [],
-        connection_factory:
+        belongs_to_settings: []
       )
         @model_class = model
         @table = model.table_name
