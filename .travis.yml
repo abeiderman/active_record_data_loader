@@ -3,10 +3,9 @@ language: ruby
 env:
   - COVERALLS_PARALLEL=true
 rvm:
-  - 2.4.10
-  - 2.5.8
-  - 2.6.6
-  - 2.7.2
+  - 2.5.9
+  - 2.6.7
+  - 2.7.3
 gemfile:
   - gemfiles/activerecord_5.gemfile
   - gemfiles/rails.gemfile
@@ -22,12 +21,4 @@ before_script:
   - psql -c 'create database test;' -U postgres
   - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
   - cp config/database.yml.travis config/database.yml
-jobs:
-  exclude:
-    - rvm: 2.4.10
-      gemfile: gemfiles/rails.gemfile
-    - rvm: 2.4.10
-      gemfile: gemfiles/faker.gemfile
-    - rvm: 2.4.10
-      gemfile: gemfiles/ffaker.gemfile
 script: "bundle exec rake"
