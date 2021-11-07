@@ -21,6 +21,8 @@ module ActiveRecordDataLoader
           else
             []
           end
+        ensure
+          connection&.close
         end
 
         def postgres_enum_values_for(connection, enum_type)

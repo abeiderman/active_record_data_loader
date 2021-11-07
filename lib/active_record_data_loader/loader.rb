@@ -73,25 +73,28 @@ module ActiveRecordDataLoader
     end
 
     def with_connection
+      connection = open_connection
       if connection.adapter_name.downcase.to_sym == :postgresql
-        original_timeout = retrieve_statement_timeout
-        update_statement_timeout(statement_timeout)
+        original_timeout = retrieve_statement_timeout(connection)
+        update_statement_timeout(connection, statement_timeout)
         yield connection
-        update_statement_timeout(original_timeout)
+        update_statement_timeout(connection, original_timeout)
       else
         yield connection
       end
+    ensure
+      connection&.close
     end
 
-    def retrieve_statement_timeout
+    def retrieve_statement_timeout(connection)
       connection.execute("SHOW statement_timeout").first["statement_timeout"]
     end
 
-    def update_statement_timeout(timeout)
+    def update_statement_timeout(connection, timeout)
       connection.execute("SET statement_timeout = \"#{timeout}\"")
     end
 
-    def connection
+    def open_connection
       connection_factory.call
     end
   end
