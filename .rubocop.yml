@@ -30,6 +30,10 @@ Metrics/MethodLength:
   Max: 15
   Exclude: ["spec/**/*"]
 
+Metrics/ParameterLists:
+  Max: 5
+  Exclude: ["lib/active_record_data_loader/configuration.rb"]
+
 Style/CaseLikeIf:
   Enabled: false
 

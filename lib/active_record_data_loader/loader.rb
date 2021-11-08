@@ -14,7 +14,10 @@ module ActiveRecordDataLoader
         new(
           logger: configuration.logger,
           statement_timeout: configuration.statement_timeout,
-          strategy: strategy_class(configuration.connection_factory).new(data_generator),
+          strategy: strategy_class(configuration.connection_factory).new(
+            data_generator,
+            output_adapter(configuration.output)
+          ),
           connection_factory: configuration.connection_factory
         ).load_data(batch_size, total_rows)
       end
@@ -26,6 +29,14 @@ module ActiveRecordDataLoader
           ActiveRecordDataLoader::CopyStrategy
         else
           ActiveRecordDataLoader::BulkInsertStrategy
+        end
+      end
+
+      def output_adapter(output)
+        if output == :connection || !output.respond_to?(:write)
+          ActiveRecordDataLoader::ConnectionOutputAdapter.new
+        else
+          ActiveRecordDataLoader::IOStreamOutputAdapter.new(output)
         end
       end
     end
