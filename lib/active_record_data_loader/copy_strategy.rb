@@ -12,7 +12,8 @@ module ActiveRecordDataLoader
         connection: connection,
         table: table_name_for_copy(connection),
         columns: columns_for_copy(connection),
-        data: csv_rows(row_numbers, connection)
+        data: csv_rows(row_numbers, connection),
+        row_numbers: row_numbers
       )
     end
 

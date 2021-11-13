@@ -3,7 +3,8 @@
 module ActiveRecordDataLoader
   class Configuration
     attr_accessor :connection_factory, :default_batch_size, :default_row_count,
-                  :logger, :output, :statement_timeout
+                  :logger, :statement_timeout
+    attr_reader :output
 
     def initialize(
       default_batch_size: 100_000,
@@ -18,10 +19,30 @@ module ActiveRecordDataLoader
       @logger = logger || default_logger
       @statement_timeout = statement_timeout
       @connection_factory = connection_factory
-      @output = output
+      self.output = output
+    end
+
+    def output=(output)
+      @output = validate_output(output || { type: :connection })
     end
 
     private
+
+    OUTPUT_OPTIONS_BY_TYPE = { connection: %i[type], file: %i[type filename] }.freeze
+
+    def validate_output(output)
+      if %i[file connection].include?(output)
+        { type: output }
+      elsif output.is_a?(Hash)
+        raise "The output hash must contain a :type key with either :connection or :file" \
+          unless %i[file connection].include?(output[:type])
+
+        output.slice(*OUTPUT_OPTIONS_BY_TYPE[output[:type]])
+      else
+        raise "The output configuration parameter must be either a symbol for :connection or :file, "\
+          "or a hash with more detailed output options."
+      end
+    end
 
     def default_logger
       if defined?(Rails) && Rails.respond_to?(:logger)

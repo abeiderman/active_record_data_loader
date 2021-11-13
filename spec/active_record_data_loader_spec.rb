@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "fileutils"
+require "securerandom"
+
 RSpec.describe ActiveRecordDataLoader, :connects_to_db do
   let(:loader) do
     ActiveRecordDataLoader.define do
@@ -84,13 +87,20 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
     end
   end
 
-  context "when the output is an IO stream" do
+  context "when the output is a file" do
+    def clean_files
+      FileUtils.rm(Dir.glob("./#{file_prefix}*"), force: true)
+    end
+
+    let(:file_prefix) { "file_output_test_#{SecureRandom.alphanumeric(8)}" }
+    let(:filename) { "./#{file_prefix}.sql" }
+    after { clean_files }
+
     shared_examples_for "writing SQL commands to a stream" do |adapter, block|
       it "wirtes SQL commands for #{adapter} into a stream", adapter do
-        stream = StringIO.new
         ActiveRecordDataLoader.configure do |c|
           c.logger = ::ActiveRecord::Base.logger
-          c.output = stream
+          c.output = { type: :file, filename: filename }
         end
 
         loader.load_data
@@ -101,7 +111,7 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
         expect(Order.all).to be_empty
         expect(Payment.all).to be_empty
 
-        block.call(stream)
+        block.call(filename)
         expect(Company.all).to have(10).items
         expect(Company.all.pluck(:created_at)).to all(be_within(10.minutes).of(Time.now))
         expect(Company.all.pluck(:updated_at)).to all(be_within(10.minutes).of(Time.now))
@@ -114,16 +124,14 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
       end
     end
 
-    it_behaves_like "writing SQL commands to a stream", :postgres, lambda { |s|
-      ::ActiveRecord::Base.connection.execute(s.string)
+    it_behaves_like "writing SQL commands to a stream", :postgres, lambda { |f|
+      `PGPASSWORD=test psql -h localhost -p 2345 -U test -f #{f}`
     }
-    it_behaves_like "writing SQL commands to a stream", :mysql, lambda { |s|
-      s.rewind
-      s.each_line { |line| ::ActiveRecord::Base.connection.execute(line) }
+    it_behaves_like "writing SQL commands to a stream", :mysql, lambda { |f|
+      File.read(f).split("\n").each { |line| ::ActiveRecord::Base.connection.execute(line) }
     }
-    it_behaves_like "writing SQL commands to a stream", :sqlite3, lambda { |s|
-      s.rewind
-      s.each_line { |line| ::ActiveRecord::Base.connection.execute(line) }
+    it_behaves_like "writing SQL commands to a stream", :sqlite3, lambda { |f|
+      File.read(f).split("\n").each { |line| ::ActiveRecord::Base.connection.execute(line) }
     }
   end
 end

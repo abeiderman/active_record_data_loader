@@ -33,10 +33,10 @@ module ActiveRecordDataLoader
       end
 
       def output_adapter(output)
-        if output == :connection || !output.respond_to?(:write)
-          ActiveRecordDataLoader::ConnectionOutputAdapter.new
+        if output.fetch(:type) == :file
+          ActiveRecordDataLoader::FileOutputAdapter.new(output)
         else
-          ActiveRecordDataLoader::IOStreamOutputAdapter.new(output)
+          ActiveRecordDataLoader::ConnectionOutputAdapter.new
         end
       end
     end
