@@ -11,38 +11,33 @@ jobs:
         image: postgres:11
         ports:
           - "2345:5432"
-        environment:
-          - POSTGRES_USER=test
-          - POSTGRES_PASSWORD=test
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
       mysql:
         image: mysql:5
         ports:
           - "3306:3306"
-        environment:
-          - MYSQL_ROOT_PASSWORD=test
-          - MYSQL_USER=test
-          - MYSQL_PASSWORD=test
-          - MYSQL_DATABASE=test
+        env:
+          MYSQL_ROOT_PASSWORD: test
+          MYSQL_USER: test
+          MYSQL_PASSWORD: test
+          MYSQL_DATABASE: test
     strategy:
       matrix:
         ruby: [2.5.9, 2.6.7, 2.7.3]
-        gemfile:
-          - gemfiles/activerecord_5.gemfile
-          - gemfiles/rails.gemfile
-          - gemfiles/faker.gemfile
-          - gemfiles/ffaker.gemfile
+        gemfile: [activerecord_5, rails, faker, ffaker]
+    env:
+      BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/${{ matrix.gemfile }}.gemfile
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install gem dependencies
-        run: "gem update --system && gem install bundler"
-
-      - name: Create Postgres test database
-        run: psql -c 'create database test;' -U postgres
-
-      - name: Create MySQL test database
-        run: mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
+      - name: Setup ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
 
       - name: Run tests
         run: bundle exec rake
