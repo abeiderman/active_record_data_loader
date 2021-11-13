@@ -100,6 +100,35 @@ class ActiveRecordHelper
     def db_config
       @db_config ||= YAML.load_file(File.join(__dir__, "../config/database.yml"))
     end
+
+    def wait_for_mysql
+      wait_for("MySQL") do
+        connect_to_mysql
+        mysql?
+      end
+    end
+
+    def wait_for_postgres
+      wait_for("Postgres") do
+        connect_to_postgres
+        mysql?
+      end
+    end
+
+    def wait_for(db_name)
+      retries = 0
+      begin
+        yield
+      rescue StandardError => e
+        puts "Could not connect to #{db_name} #{e} #{e.message}"
+        raise unless retries < 10
+
+        retries += 1
+        puts "Retrying in 5 seconds"
+        sleep(5)
+        retry
+      end
+    end
   end
 end
 

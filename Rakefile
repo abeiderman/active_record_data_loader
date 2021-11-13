@@ -8,3 +8,11 @@ RSpec::Core::RakeTask.new(:spec)
 RuboCop::RakeTask.new(:rubocop)
 
 task default: [:spec, :rubocop]
+
+task :wait_for_test_db do
+  require "active_record_data_loader"
+  require "./spec/active_record_helper"
+
+  ActiveRecordHelper.wait_for_mysql
+  ActiveRecordHelper.wait_for_postgres
+end
