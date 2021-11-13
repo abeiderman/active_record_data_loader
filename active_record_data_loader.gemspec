@@ -36,7 +36,6 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "appraisal"
   spec.add_development_dependency "bundler", ">= 1.16"
-  spec.add_development_dependency "coveralls_reborn"
   spec.add_development_dependency "mysql2"
   spec.add_development_dependency "pg"
   spec.add_development_dependency "pry"
@@ -44,6 +43,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "rspec-collection_matchers"
   spec.add_development_dependency "rubocop"
+  spec.add_development_dependency "simplecov"
+  spec.add_development_dependency "simplecov-lcov"
   spec.add_development_dependency "sqlite3"
   spec.add_development_dependency "timecop"
 end

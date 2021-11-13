@@ -4,12 +4,21 @@ require "bundler/setup"
 require "rspec/collection_matchers"
 require "timecop"
 require "pry"
-require "coveralls"
 require "rails" if Gem.loaded_specs.key?("rails")
-Coveralls.wear_merged!
-
 require "active_record_data_loader"
+require "simplecov"
+require "simplecov-lcov"
 require File.join(__dir__, "active_record_helper")
+
+SimpleCov.start do
+  SimpleCov::Formatter::LcovFormatter.config do |c|
+    c.report_with_single_file = true
+    c.single_report_path = "coverage/lcov.info"
+  end
+
+  formatter SimpleCov::Formatter::LcovFormatter
+  add_filter %w[version.rb]
+end
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

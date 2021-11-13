@@ -29,7 +29,6 @@ jobs:
         gemfile: [activerecord_5, rails, faker, ffaker]
     env:
       BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/${{ matrix.gemfile }}.gemfile
-      COVERALLS_PARALLEL: true
     steps:
       - name: Checkout
         uses: actions/checkout@v2
