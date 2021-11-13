@@ -1,6 +1,6 @@
 # active_record_data_loader
 
-[![Build Status](https://travis-ci.org/abeiderman/active_record_data_loader.svg?branch=master)](https://travis-ci.org/abeiderman/active_record_data_loader)
+[![Build Status](https://github.com/abeiderman/active_record_data_loader/actions/workflows/build.yml/badge.svg)](https://github.com/abeiderman/active_record_data_loader/actions/workflows/build.yml)
 [![Coverage Status](https://coveralls.io/repos/github/abeiderman/active_record_data_loader/badge.svg?branch=master&service=github)](https://coveralls.io/github/abeiderman/active_record_data_loader?branch=master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/338904b3f7e8d19a3cb1/maintainability)](https://codeclimate.com/github/abeiderman/active_record_data_loader/maintainability)
 
