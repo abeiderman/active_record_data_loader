@@ -40,7 +40,7 @@ module ActiveRecordDataLoader
         output.slice(*OUTPUT_OPTIONS_BY_TYPE[output[:type]])
       else
         raise "The output configuration parameter must be either a symbol for :connection or :file, "\
-          "or a hash with more detailed output options."
+              "or a hash with more detailed output options."
       end
     end
 
