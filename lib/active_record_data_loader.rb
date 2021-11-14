@@ -3,6 +3,7 @@
 require "active_record_data_loader/version"
 require "active_record"
 require "active_record_data_loader/configuration"
+require "active_record_data_loader/connection_handler"
 require "active_record_data_loader/data_faker"
 require "active_record_data_loader/active_record/per_row_value_cache"
 require "active_record_data_loader/active_record/integer_value_generator"
@@ -48,7 +49,9 @@ module ActiveRecordDataLoader
     def load_data
       ActiveRecordDataLoader::ActiveRecord::PerRowValueCache.clear
 
-      definition.models.map { |m| load_model(m) }
+      configuration.connection_handler.with_statement_timeout_for_output do
+        definition.models.map { |m| load_model(m) }
+      end
     end
 
     private

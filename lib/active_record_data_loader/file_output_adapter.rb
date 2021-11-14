@@ -8,6 +8,10 @@ module ActiveRecordDataLoader
       @path = File.expand_path(File.dirname(@filename))
     end
 
+    def needs_timeout_output?
+      true
+    end
+
     def copy(connection:, table:, columns:, data:, row_numbers:)
       data_filename = data_filename(table, row_numbers)
       File.open(data_filename, "w") { |f| f.puts(data) }
@@ -17,6 +21,10 @@ module ActiveRecordDataLoader
     end
 
     def insert(connection:, command:)
+      execute(command)
+    end
+
+    def execute(command)
       File.open(@filename, "a") { |f| f.puts("#{command.gsub("\n", ' ')};") }
     end
 

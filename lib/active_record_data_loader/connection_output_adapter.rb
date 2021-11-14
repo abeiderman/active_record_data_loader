@@ -2,6 +2,10 @@
 
 module ActiveRecordDataLoader
   class ConnectionOutputAdapter
+    def needs_timeout_output?
+      false
+    end
+
     def copy(connection:, table:, columns:, data:, row_numbers:)
       raw_connection = connection.raw_connection
       raw_connection.copy_data("COPY #{table} (#{columns}) FROM STDIN WITH (FORMAT CSV)") do

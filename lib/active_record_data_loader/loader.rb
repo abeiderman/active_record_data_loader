@@ -13,12 +13,11 @@ module ActiveRecordDataLoader
       )
         new(
           logger: configuration.logger,
-          statement_timeout: configuration.statement_timeout,
+          connection_handler: configuration.connection_handler,
           strategy: strategy_class(configuration.connection_factory).new(
             data_generator,
-            output_adapter(configuration.output)
-          ),
-          connection_factory: configuration.connection_factory
+            configuration.output_adapter
+          )
         ).load_data(batch_size, total_rows)
       end
 
@@ -31,21 +30,12 @@ module ActiveRecordDataLoader
           ActiveRecordDataLoader::BulkInsertStrategy
         end
       end
-
-      def output_adapter(output)
-        if output.fetch(:type) == :file
-          ActiveRecordDataLoader::FileOutputAdapter.new(output)
-        else
-          ActiveRecordDataLoader::ConnectionOutputAdapter.new
-        end
-      end
     end
 
-    def initialize(logger:, statement_timeout:, strategy:, connection_factory:)
+    def initialize(logger:, connection_handler:, strategy:)
       @logger = logger
+      @connection_handler = connection_handler
       @strategy = strategy
-      @statement_timeout = statement_timeout
-      @connection_factory = connection_factory
     end
 
     def load_data(batch_size, total_rows)
@@ -68,10 +58,10 @@ module ActiveRecordDataLoader
 
     private
 
-    attr_reader :strategy, :statement_timeout, :logger, :connection_factory
+    attr_reader :strategy, :connection_handler, :logger
 
     def load_in_batches(batch_size, total_rows, batch_count)
-      with_connection do |connection|
+      connection_handler.with_connection do |connection|
         total_rows.times.each_slice(batch_size).with_index do |row_numbers, i|
           time = Benchmark.realtime { strategy.load_batch(row_numbers, connection) }
 
@@ -81,32 +71,6 @@ module ActiveRecordDataLoader
           )
         end
       end
-    end
-
-    def with_connection
-      connection = open_connection
-      if connection.adapter_name.downcase.to_sym == :postgresql
-        original_timeout = retrieve_statement_timeout(connection)
-        update_statement_timeout(connection, statement_timeout)
-        yield connection
-        update_statement_timeout(connection, original_timeout)
-      else
-        yield connection
-      end
-    ensure
-      connection&.close
-    end
-
-    def retrieve_statement_timeout(connection)
-      connection.execute("SHOW statement_timeout").first["statement_timeout"]
-    end
-
-    def update_statement_timeout(connection, timeout)
-      connection.execute("SET statement_timeout = \"#{timeout}\"")
-    end
-
-    def open_connection
-      connection_factory.call
     end
   end
 end

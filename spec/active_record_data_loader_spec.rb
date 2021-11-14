@@ -133,5 +133,21 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
     it_behaves_like "writing SQL commands to a stream", :sqlite3, lambda { |f|
       File.read(f).split("\n").each { |line| ::ActiveRecord::Base.connection.execute(line) }
     }
+
+    it "sets the statement timeout for postgres scripts", :postgres do
+      ActiveRecord::Base.connection.execute("SET statement_timeout = \"1min\"")
+      ActiveRecordDataLoader.configure do |c|
+        c.logger = ::ActiveRecord::Base.logger
+        c.output = { type: :file, filename: filename }
+        c.statement_timeout = "10min"
+      end
+
+      loader.load_data
+
+      first_script_line = File.open(filename, &:readline)
+      last_script_line = File.readlines(filename)[-1]
+      expect(first_script_line).to match(/SET.*statement_timeout.*10min/i)
+      expect(last_script_line).to match(/SET.*statement_timeout.*1min/i)
+    end
   end
 end
