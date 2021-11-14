@@ -5,14 +5,15 @@ module ActiveRecordDataLoader
     def initialize(connection_factory:, statement_timeout:)
       @connection_factory = connection_factory
       @statement_timeout = statement_timeout
+      cache_facts
     end
 
     def with_connection
-      connection = open_connection
-      if postgres?(connection)
-        update_timeout(connection, statement_timeout)
+      connection = connection_factory.call
+      if supports_timeout?
+        connection.execute(timeout_set_command)
         yield connection
-        reset_timeout(connection)
+        connection.execute(reset_timeout_command)
       else
         yield connection
       end
@@ -21,18 +22,15 @@ module ActiveRecordDataLoader
     end
 
     def supports_timeout?
-      return @supports_timeout if defined?(@supports_timeout)
-
-      @supports_timeout = begin
-        connection = open_connection
-        postgres?(connection)
-      ensure
-        connection&.close
-      end
+      @supports_timeout
     end
 
-    def timeout_set_command(timeout)
-      "SET statement_timeout = \"#{timeout}\""
+    def supports_copy?
+      @supports_copy
+    end
+
+    def timeout_set_command
+      "SET statement_timeout = \"#{statement_timeout}\""
     end
 
     def reset_timeout_command
@@ -43,20 +41,12 @@ module ActiveRecordDataLoader
 
     attr_reader :connection_factory, :statement_timeout
 
-    def update_timeout(connection, timeout)
-      connection.execute(timeout_set_command(timeout))
-    end
-
-    def reset_timeout(connection)
-      connection.execute(reset_timeout_command)
-    end
-
-    def open_connection
-      connection_factory.call
-    end
-
-    def postgres?(connection)
-      connection.adapter_name.downcase.to_sym == :postgresql
+    def cache_facts
+      connection = connection_factory.call
+      @supports_timeout = connection.adapter_name.downcase.to_sym == :postgresql
+      @supports_copy = connection.raw_connection.respond_to?(:copy_data)
+    ensure
+      connection&.close
     end
   end
 end

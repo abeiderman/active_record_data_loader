@@ -49,7 +49,7 @@ module ActiveRecordDataLoader
       timeout_commands =
         if connection_handler.supports_timeout?
           {
-            pre_command: connection_handler.timeout_set_command(configuration.statement_timeout),
+            pre_command: connection_handler.timeout_set_command,
             post_command: connection_handler.reset_timeout_command,
           }
         else
@@ -60,7 +60,7 @@ module ActiveRecordDataLoader
     end
 
     def strategy_class
-      @strategy_class ||= if configuration.connection_factory.call.raw_connection.respond_to?(:copy_data)
+      @strategy_class ||= if connection_handler.supports_copy?
                             ActiveRecordDataLoader::CopyStrategy
                           else
                             ActiveRecordDataLoader::BulkInsertStrategy
