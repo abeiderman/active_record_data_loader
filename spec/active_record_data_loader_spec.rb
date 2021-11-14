@@ -148,5 +148,19 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
       expect(first_script_line).to match(/SET.*statement_timeout.*10min/i)
       expect(last_script_line).to match(/RESET.*statement_timeout/i)
     end
+
+    it "truncates the existing SQL script file if it exists", :sqlite3 do
+      File.open(filename, "w") { |f| f.puts "This is an existing line" }
+
+      ActiveRecordDataLoader.configure do |c|
+        c.logger = ::ActiveRecord::Base.logger
+        c.output = { type: :file, filename: filename }
+      end
+
+      loader.load_data
+
+      first_script_line = File.open(filename, &:readline)
+      expect(first_script_line).to match(/\AINSERT/i)
+    end
   end
 end
