@@ -99,13 +99,13 @@ data_loader = ActiveRecordDataLoader.define do
     m.column :currency, "CAD"
     m.belongs_to :customer, eligible_set: -> { Customer.where(country: "CAN") }
   end
-  
+
   model Order do |m|
     m.count 25_000
     m.column :currency, "MXN"
     m.belongs_to :customer, eligible_set: -> { Customer.where(country: "MEX") }
   end
-  
+
    model Order do |m|
     m.count 50_000
     m.column :currency, "USD"
@@ -148,7 +148,7 @@ data_loader = ActiveRecordDataLoader.define do
 
   model Order do |m|
     m.count 100_000
-    
+
     m.polymorphic :customer do |c|
       c.model Person
       c.model Business
@@ -172,7 +172,7 @@ data_loader = ActiveRecordDataLoader.define do
 
   model Order do |m|
     m.count 100_000
-    
+
     m.polymorphic :customer do |c|
       c.model Person, weight: 2
       c.model Business, weight: 1
@@ -197,7 +197,7 @@ data_loader = ActiveRecordDataLoader.define do
 
   model Order do |m|
     m.count 100_000
-    
+
     m.polymorphic :customer do |c|
       c.model Person, weight: 2
       c.model Business, weight: 1, eligible_set: -> { Business.where(country: "USA") }
@@ -206,6 +206,85 @@ data_loader = ActiveRecordDataLoader.define do
 end
 
 data_loader.load_data
+```
+
+### Configuration options
+
+You can define global configuration options like this:
+
+```ruby
+ActiveRecordDataLoader.configure do |c|
+  c.logger = ActiveSupport::Logger.new("my_file.log", level: :debug)
+  c.statement_timeout = "5min"
+end
+```
+
+Or you can create a configuration object for the specific data loader instance rather than globally:
+
+```ruby
+config = ActiveRecordDataLoader::Configuration.new(
+  c.logger = ActiveSupport::Logger.new("my_file.log", level: :debug)
+  c.statement_timeout = "5min"
+)
+loader = ActiveRecordDataLoader.define(config) do
+  model Company do |m|
+    m.count 10
+  end
+
+  # ... more definitions
+end
+```
+
+#### statement_timeout
+
+This is currently only used for Postgres connections to adjust the `statement_timeout` value for the connection. The default is `2min`. Depending on the size of the batches you are loading and overall size of the tables you may need to increase this value:
+
+```ruby
+ActiveRecordDataLoader.configure do |c|
+  c.statement_timeout = "5min"
+end
+```
+
+#### connection_factory
+
+The `connection_factory` option accepts a lambda that should return a connection object whenever executed. If not specified, the default behavior is to retrieve a connection using `ActiveRecord::Base.connection`. You can configure it like this:
+
+```ruby
+ActiveRecordDataLoader.configure do |c|
+  c.connection_factory = -> { MyCustomConnectionHandler.open_connection }
+end
+```
+
+#### output
+
+The `output` option accepts either `:connection` or `:file`. The default behavior is `:connection` which means the data will be loaded into the database using the database connection.
+
+If `:file` is specified, instead of the data being loaded into the database, a script file will be generated. This script file can then be executed manually to load the data. This can be helpful if you need to load the same data multiple times. For example if you are profiling different alternatives in your code and you want to see how each performs with a fully loaded database. In that case you would want to have the same data starting point for each alternative you evaluate. By generating the script file ahead of time, it would be significantly faster to load that data over and over by executing the existing script.
+
+Here are some examples on how to use the `output` option:
+
+```ruby
+ActiveRecordDataLoader.configure do |c|
+  c.output = :connection  # This is the default behavior
+end
+```
+
+```ruby
+ActiveRecordDataLoader.configure do |c|
+  c.output = :file  # Outputs to a file with a default name
+end
+```
+
+```ruby
+ActiveRecordDataLoader.configure do |c|
+  c.output = { type: :file, filename: "./my_script.sql" }  # Outputs to the provided file
+end
+```
+
+When using the `:file` type with Postgres, the resulting script will have `\COPY` commands which reference CSV files that contain the data batches to be copied. The CSV files will be created along side the SQL script and will have a naming convention of using the table name and the rows range for the given batch. For example `./my_script_customers_1_to_1000.csv`. Each `\COPY` command in the SQL file will reference the corresponding CSV file so all you need to do is execute the SQL file using `psql`:
+
+```bash
+# psql -h my-db-host -U my_user -f my_script.sql
 ```
 
 ## Development

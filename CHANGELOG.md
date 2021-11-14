@@ -1,12 +1,20 @@
 # Change log
 
+## [v1.2.0] - 2021-11-14
+
+[Diff](https://github.com/abeiderman/active_record_data_loader/compare/v1.1.0...v1.2.0)
+
+### Changes:
+* Add `:file` output option for generating a SQL script instead of loading the data into the database.
+* Fix some connection handling issues when a custom connection factory is provided.
+
 ## [v1.1.0] - 2021-05-01
 
 [Diff](https://github.com/abeiderman/active_record_data_loader/compare/v1.0.2...v1.1.0)
 
 ### Changes:
 * Bump ruby version requirement to >= 2.5
-* Bump activerecord requirement to >= 5.0 
+* Bump activerecord requirement to >= 5.0
 
 ## [v1.0.2] - 2019-07-05
 
@@ -31,3 +39,4 @@ Initial stable release
 [v1.0.1]: https://github.com/abeiderman/active_record_data_loader/releases/tag/v1.0.1
 [v1.0.2]: https://github.com/abeiderman/active_record_data_loader/releases/tag/v1.0.2
 [v1.1.0]: https://github.com/abeiderman/active_record_data_loader/releases/tag/v1.1.0
+[v1.2.0]: https://github.com/abeiderman/active_record_data_loader/releases/tag/v1.2.0
