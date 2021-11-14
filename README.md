@@ -284,7 +284,7 @@ end
 When using the `:file` type with Postgres, the resulting script will have `\COPY` commands which reference CSV files that contain the data batches to be copied. The CSV files will be created along side the SQL script and will have a naming convention of using the table name and the rows range for the given batch. For example `./my_script_customers_1_to_1000.csv`. Each `\COPY` command in the SQL file will reference the corresponding CSV file so all you need to do is execute the SQL file using `psql`:
 
 ```bash
-# psql -h my-db-host -U my_user -f my_script.sql
+psql -h my-db-host -U my_user -f my_script.sql
 ```
 
 ## Development
