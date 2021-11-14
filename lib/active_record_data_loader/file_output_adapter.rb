@@ -2,14 +2,19 @@
 
 module ActiveRecordDataLoader
   class FileOutputAdapter
+    def self.with_output_options(options)
+      adapter = new(options)
+      pre_command = options[:pre_command]
+      adapter.write_command(pre_command) if pre_command
+      yield adapter
+      post_command = options[:post_command]
+      adapter.write_command(post_command) if post_command
+    end
+
     def initialize(options)
       @filename = options.fetch(:filename, "active_record_data_loader_script.sql")
       @file_basename = File.basename(@filename, File.extname(@filename))
       @path = File.expand_path(File.dirname(@filename))
-    end
-
-    def needs_timeout_output?
-      true
     end
 
     def copy(connection:, table:, columns:, data:, row_numbers:)
@@ -21,10 +26,10 @@ module ActiveRecordDataLoader
     end
 
     def insert(connection:, command:)
-      execute(command)
+      write_command(command)
     end
 
-    def execute(command)
+    def write_command(command)
       File.open(@filename, "a") { |f| f.puts("#{command.gsub("\n", ' ')};") }
     end
 

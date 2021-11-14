@@ -135,7 +135,6 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
     }
 
     it "sets the statement timeout for postgres scripts", :postgres do
-      ActiveRecord::Base.connection.execute("SET statement_timeout = \"1min\"")
       ActiveRecordDataLoader.configure do |c|
         c.logger = ::ActiveRecord::Base.logger
         c.output = { type: :file, filename: filename }
@@ -147,7 +146,7 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
       first_script_line = File.open(filename, &:readline)
       last_script_line = File.readlines(filename)[-1]
       expect(first_script_line).to match(/SET.*statement_timeout.*10min/i)
-      expect(last_script_line).to match(/SET.*statement_timeout.*1min/i)
+      expect(last_script_line).to match(/RESET.*statement_timeout/i)
     end
   end
 end

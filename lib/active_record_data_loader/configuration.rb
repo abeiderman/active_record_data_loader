@@ -26,22 +26,6 @@ module ActiveRecordDataLoader
       @output = validate_output(output || { type: :connection })
     end
 
-    def output_adapter
-      if output.fetch(:type) == :file
-        ActiveRecordDataLoader::FileOutputAdapter.new(output)
-      else
-        ActiveRecordDataLoader::ConnectionOutputAdapter.new
-      end
-    end
-
-    def connection_handler
-      ActiveRecordDataLoader::ConnectionHandler.new(
-        connection_factory: connection_factory,
-        statement_timeout: statement_timeout,
-        output_adapter: output_adapter
-      )
-    end
-
     private
 
     OUTPUT_OPTIONS_BY_TYPE = { connection: %i[type], file: %i[type filename] }.freeze

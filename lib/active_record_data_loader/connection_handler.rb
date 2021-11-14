@@ -2,19 +2,17 @@
 
 module ActiveRecordDataLoader
   class ConnectionHandler
-    def initialize(connection_factory:, statement_timeout:, output_adapter:)
+    def initialize(connection_factory:, statement_timeout:)
       @connection_factory = connection_factory
       @statement_timeout = statement_timeout
-      @output_adapter = output_adapter
     end
 
     def with_connection
       connection = open_connection
       if postgres?(connection)
-        original_timeout = retrieve_statement_timeout(connection)
-        update_statement_timeout(connection, statement_timeout)
+        update_timeout(connection, statement_timeout)
         yield connection
-        update_statement_timeout(connection, original_timeout)
+        reset_timeout(connection)
       else
         yield connection
       end
@@ -22,45 +20,35 @@ module ActiveRecordDataLoader
       connection&.close
     end
 
-    # When the output is going to a script file, there are two places to update the
-    # statement_timeout. The connection itself needs to have the timeout updated
-    # because we are reading data from the connection to come up with related data
-    # while generating the data. Also, the final SQL script file needs the timeout
-    # updated so that when those \COPY commands are executed they have the higher
-    # timeout as well.
-    def with_statement_timeout_for_output
-      return yield unless output_adapter.needs_timeout_output?
+    def supports_timeout?
+      return @supports_timeout if defined?(@supports_timeout)
 
-      original_timeout = begin
+      @supports_timeout = begin
         connection = open_connection
-        retrieve_statement_timeout(connection) if postgres?(connection)
+        postgres?(connection)
       ensure
         connection&.close
       end
+    end
 
-      if original_timeout
-        output_adapter.execute(statement_timeout_set_command(statement_timeout))
-        yield
-        output_adapter.execute(statement_timeout_set_command(original_timeout))
-      else
-        yield
-      end
+    def timeout_set_command(timeout)
+      "SET statement_timeout = \"#{timeout}\""
+    end
+
+    def reset_timeout_command
+      "RESET statement_timeout"
     end
 
     private
 
-    attr_reader :connection_factory, :statement_timeout, :output_adapter
+    attr_reader :connection_factory, :statement_timeout
 
-    def retrieve_statement_timeout(connection)
-      connection.execute("SHOW statement_timeout").first["statement_timeout"]
+    def update_timeout(connection, timeout)
+      connection.execute(timeout_set_command(timeout))
     end
 
-    def update_statement_timeout(connection, timeout)
-      connection.execute(statement_timeout_set_command(timeout))
-    end
-
-    def statement_timeout_set_command(timeout)
-      "SET statement_timeout = \"#{timeout}\""
+    def reset_timeout(connection)
+      connection.execute(reset_timeout_command)
     end
 
     def open_connection

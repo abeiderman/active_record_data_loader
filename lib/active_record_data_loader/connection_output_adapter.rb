@@ -2,8 +2,8 @@
 
 module ActiveRecordDataLoader
   class ConnectionOutputAdapter
-    def needs_timeout_output?
-      false
+    def self.with_output_options(_options)
+      yield new
     end
 
     def copy(connection:, table:, columns:, data:, row_numbers:)

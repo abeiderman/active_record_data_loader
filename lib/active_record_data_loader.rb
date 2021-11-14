@@ -22,11 +22,12 @@ require "active_record_data_loader/connection_output_adapter"
 require "active_record_data_loader/file_output_adapter"
 require "active_record_data_loader/copy_strategy"
 require "active_record_data_loader/bulk_insert_strategy"
+require "active_record_data_loader/table_loader"
 require "active_record_data_loader/loader"
 
 module ActiveRecordDataLoader
   def self.define(config = ActiveRecordDataLoader.configuration, &block)
-    LoaderProxy.new(
+    ActiveRecordDataLoader::Loader.new(
       config,
       ActiveRecordDataLoader::Dsl::Definition.new(config).tap { |l| l.instance_eval(&block) }
     )
@@ -38,41 +39,5 @@ module ActiveRecordDataLoader
 
   def self.configuration
     @configuration ||= ActiveRecordDataLoader::Configuration.new
-  end
-
-  class LoaderProxy
-    def initialize(configuration, definition)
-      @configuration = configuration
-      @definition = definition
-    end
-
-    def load_data
-      ActiveRecordDataLoader::ActiveRecord::PerRowValueCache.clear
-
-      configuration.connection_handler.with_statement_timeout_for_output do
-        definition.models.map { |m| load_model(m) }
-      end
-    end
-
-    private
-
-    attr_reader :definition, :configuration
-
-    def load_model(model)
-      generator = ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator.new(
-        model: model.klass,
-        column_settings: model.columns,
-        polymorphic_settings: model.polymorphic_associations,
-        belongs_to_settings: model.belongs_to_associations,
-        connection_factory: configuration.connection_factory
-      )
-
-      ActiveRecordDataLoader::Loader.load_data(
-        data_generator: generator,
-        batch_size: model.batch_size,
-        total_rows: model.row_count,
-        configuration: configuration
-      )
-    end
   end
 end
