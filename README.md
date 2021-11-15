@@ -257,31 +257,19 @@ end
 
 #### output
 
-The `output` option accepts either `:connection` or `:file`. The default behavior is `:connection` which means the data will be loaded into the database using the database connection.
+The `output` option accepts an optional file name to write a SQL script with the data loading statements. This script file can then be executed manually to load the data. This can be helpful if you need to load the same data multiple times. For example if you are profiling different alternatives in your code and you want to see how each performs with a fully loaded database. In that case you would want to have the same data starting point for each alternative you evaluate. By generating the script file, it would be significantly faster to load that data over and over by executing the existing script.
 
-If `:file` is specified, instead of the data being loaded into the database, a script file will be generated. This script file can then be executed manually to load the data. This can be helpful if you need to load the same data multiple times. For example if you are profiling different alternatives in your code and you want to see how each performs with a fully loaded database. In that case you would want to have the same data starting point for each alternative you evaluate. By generating the script file ahead of time, it would be significantly faster to load that data over and over by executing the existing script.
+If `output` is nil or empty, no script file will be written.
 
-Here are some examples on how to use the `output` option:
-
-```ruby
-ActiveRecordDataLoader.configure do |c|
-  c.output = :connection  # This is the default behavior
-end
-```
+Example usage:
 
 ```ruby
 ActiveRecordDataLoader.configure do |c|
-  c.output = :file  # Outputs to a file with a default name
+  c.output = "./my_script.sql"  # Outputs to the provided file
 end
 ```
 
-```ruby
-ActiveRecordDataLoader.configure do |c|
-  c.output = { type: :file, filename: "./my_script.sql" }  # Outputs to the provided file
-end
-```
-
-When using the `:file` type with Postgres, the resulting script will have `\COPY` commands which reference CSV files that contain the data batches to be copied. The CSV files will be created along side the SQL script and will have a naming convention of using the table name and the rows range for the given batch. For example `./my_script_customers_1_to_1000.csv`. Each `\COPY` command in the SQL file will reference the corresponding CSV file so all you need to do is execute the SQL file using `psql`:
+When using an output script file with Postgres, the resulting script will have `\COPY` commands which reference CSV files that contain the data batches to be copied. The CSV files will be created along side the SQL script and will have a naming convention of using the table name and the rows range for the given batch. For example `./my_script_customers_1_to_1000.csv`. Each `\COPY` command in the SQL file will reference the corresponding CSV file so all you need to do is execute the SQL file using `psql`:
 
 ```bash
 psql -h my-db-host -U my_user -f my_script.sql

@@ -12,7 +12,7 @@ module ActiveRecordDataLoader
       logger: nil,
       statement_timeout: "2min",
       connection_factory: -> { ::ActiveRecord::Base.connection },
-      output: :connection
+      output: nil
     )
       @default_batch_size = default_batch_size
       @default_row_count = default_row_count
@@ -23,24 +23,19 @@ module ActiveRecordDataLoader
     end
 
     def output=(output)
-      @output = validate_output(output || { type: :connection })
+      @output = validate_output(output)
     end
 
     private
 
-    OUTPUT_OPTIONS_BY_TYPE = { connection: %i[type], file: %i[type filename] }.freeze
-
     def validate_output(output)
-      if %i[file connection].include?(output)
-        { type: output }
-      elsif output.is_a?(Hash)
-        raise "The output hash must contain a :type key with either :connection or :file" \
-          unless %i[file connection].include?(output[:type])
-
-        output.slice(*OUTPUT_OPTIONS_BY_TYPE[output[:type]])
+      if output.to_s.blank?
+        nil
+      elsif output.is_a?(String)
+        output
       else
-        raise "The output configuration parameter must be either a symbol for :connection or :file, "\
-              "or a hash with more detailed output options."
+        raise "The output configuration parameter must be a filename meant to be the "\
+              "target for the SQL script"
       end
     end
 

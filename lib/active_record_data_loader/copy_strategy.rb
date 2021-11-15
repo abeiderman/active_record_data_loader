@@ -2,17 +2,24 @@
 
 module ActiveRecordDataLoader
   class CopyStrategy
-    def initialize(data_generator, output_adapter)
+    def initialize(data_generator, file_adapter)
       @data_generator = data_generator
-      @output_adapter = output_adapter
+      @file_adapter = file_adapter
     end
 
     def load_batch(row_numbers, connection)
-      output_adapter.copy(
+      data = csv_rows(row_numbers, connection)
+      copy(
         connection: connection,
         table: table_name_for_copy(connection),
         columns: columns_for_copy(connection),
-        data: csv_rows(row_numbers, connection),
+        data: data,
+        row_numbers: row_numbers
+      )
+      file_adapter.copy(
+        table: table_name_for_copy(connection),
+        columns: columns_for_copy(connection),
+        data: data,
         row_numbers: row_numbers
       )
     end
@@ -27,7 +34,14 @@ module ActiveRecordDataLoader
 
     private
 
-    attr_reader :data_generator, :output_adapter
+    attr_reader :data_generator, :file_adapter
+
+    def copy(connection:, table:, columns:, data:, row_numbers:)
+      raw_connection = connection.raw_connection
+      raw_connection.copy_data("COPY #{table} (#{columns}) FROM STDIN WITH (FORMAT CSV)") do
+        raw_connection.put_copy_data(data.join("\n"))
+      end
+    end
 
     def csv_rows(row_numbers, connection)
       row_numbers.map do |i|

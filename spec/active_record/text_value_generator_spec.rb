@@ -23,7 +23,7 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::TextValueGenerator, :connec
     ].each do |model_name|
       context "when the model name is '#{model_name}' suggesting it is a person" do
         let(:ar_column) { Employee.columns_hash["name"] }
-        let(:model) { OpenStruct.new(name: model_name) }
+        let(:model) { double(name: model_name) }
 
         it { is_expected.to eq("Mary Smith") }
       end
@@ -38,7 +38,7 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::TextValueGenerator, :connec
     ].each do |model_name|
       context "when the model name is '#{model_name}' suggesting it is an organization" do
         let(:ar_column) { Employee.columns_hash["name"] }
-        let(:model) { OpenStruct.new(name: model_name) }
+        let(:model) { double(name: model_name) }
 
         it { is_expected.to eq("ACME") }
       end

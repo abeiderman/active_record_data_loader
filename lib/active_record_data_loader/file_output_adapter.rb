@@ -18,7 +18,7 @@ module ActiveRecordDataLoader
       File.open(@filename, File::TRUNC) if File.exist?(@filename)
     end
 
-    def copy(connection:, table:, columns:, data:, row_numbers:)
+    def copy(table:, columns:, data:, row_numbers:)
       data_filename = data_filename(table, row_numbers)
       File.open(data_filename, "w") { |f| f.puts(data) }
       File.open(filename, "a") do |file|
@@ -26,7 +26,7 @@ module ActiveRecordDataLoader
       end
     end
 
-    def insert(connection:, command:)
+    def insert(command)
       write_command(command)
     end
 

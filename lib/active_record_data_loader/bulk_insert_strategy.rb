@@ -2,16 +2,18 @@
 
 module ActiveRecordDataLoader
   class BulkInsertStrategy
-    def initialize(data_generator, output_adapter)
+    def initialize(data_generator, file_adapter)
       @data_generator = data_generator
-      @output_adapter = output_adapter
+      @file_adapter = file_adapter
     end
 
     def load_batch(row_numbers, connection)
-      output_adapter.insert(connection: connection, command: <<~SQL)
+      command = <<~SQL
         INSERT INTO #{quoted_table_name(connection)} (#{column_list(connection)})
         VALUES #{values(row_numbers, connection)}
       SQL
+      insert(connection: connection, command: command)
+      file_adapter.insert(command)
     end
 
     def table_name
@@ -24,7 +26,11 @@ module ActiveRecordDataLoader
 
     private
 
-    attr_reader :data_generator, :output_adapter
+    attr_reader :data_generator, :file_adapter
+
+    def insert(connection:, command:)
+      connection.insert(command)
+    end
 
     def quoted_table_name(connection)
       @quoted_table_name ||= connection.quote_table_name(data_generator.table)
