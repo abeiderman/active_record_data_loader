@@ -5,10 +5,14 @@ module ActiveRecordDataLoader
     class ModelDataGenerator
       attr_reader :table
 
+      MAX_RETRIES = 20
+
       def initialize(
         model:,
         column_settings:,
         connection_factory:,
+        logger:,
+        raise_on_duplicates:,
         polymorphic_settings: [],
         belongs_to_settings: []
       )
@@ -18,6 +22,10 @@ module ActiveRecordDataLoader
         @polymorphic_settings = polymorphic_settings
         @belongs_to_settings = belongs_to_settings.map { |s| [s.name, s.query] }.to_h
         @connection_factory = connection_factory
+        @raise_on_duplicates = raise_on_duplicates
+        @logger = logger
+        @index_tracker = UniqueIndexTracker.new(model: model, connection_factory: connection_factory)
+        @index_tracker.map_indexed_columns(column_list)
       end
 
       def column_list
@@ -25,10 +33,41 @@ module ActiveRecordDataLoader
       end
 
       def generate_row(row_number)
-        column_list.map { |c| column_data(row_number, c) }
+        @index_tracker.capture_unique_values(generate_row_with_retries(row_number))
       end
 
       private
+
+      def generate_row_with_retries(row_number)
+        retries = 0
+        while @index_tracker.repeating_unique_values?(row = generate_candidate_row(row_number)) &&
+              retries <= MAX_RETRIES
+          if (retries += 1) > MAX_RETRIES
+            raise DuplicateKeyError, <<~MSG if @raise_on_duplicates
+              Exhausted retries looking for unique values for row #{row_number} for '#{table}'.
+              Table '#{table}' has unique indexes that would have prevented inserting this row. If you would
+              like to skip non-unique rows instead of raising, configure `raise_on_duplicates` to be `false`.
+            MSG
+
+            @logger.warn(
+              "[ActiveRecordDataLoader] "\
+              "Exhausted retries looking for unique values. Skipping row #{row_number} for '#{table}'."
+            )
+            return nil
+          else
+            @logger.info(
+              "[ActiveRecordDataLoader] "\
+              "Retrying row #{row_number} for '#{table}' looking for unique values compliant with indexes. "\
+              "Retry number #{retries}."
+            )
+          end
+        end
+        row
+      end
+
+      def generate_candidate_row(row_number)
+        column_list.map { |c| column_data(row_number, c) }
+      end
 
       def column_data(row_number, column)
         column_value = columns[column]
@@ -73,15 +112,32 @@ module ActiveRecordDataLoader
           .select(&:belongs_to?)
           .reject(&:polymorphic?)
           .map do |assoc|
-            BelongsToConfiguration.config_for(ar_association: assoc, query: @belongs_to_settings[assoc.name])
+            BelongsToConfiguration.config_for(
+              ar_association: assoc,
+              query: @belongs_to_settings[assoc.name],
+              strategy: column_config_strategy(assoc)
+            )
           end
           .reduce({}, :merge)
       end
 
       def polymorphic_config
         @polymorphic_settings
-          .map { |s| PolymorphicBelongsToConfiguration.config_for(polymorphic_settings: s) }
+          .map do |s|
+            PolymorphicBelongsToConfiguration.config_for(
+              polymorphic_settings: s,
+              strategy: column_config_strategy(s.model_class.reflect_on_association(s.name))
+            )
+          end
           .reduce({}, :merge)
+      end
+
+      def column_config_strategy(column)
+        if @index_tracker.contained_in_index?(column)
+          :cycle
+        else
+          :random
+        end
       end
     end
   end

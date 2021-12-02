@@ -25,7 +25,9 @@ module ActiveRecordDataLoader
         column_settings: model.columns,
         polymorphic_settings: model.polymorphic_associations,
         belongs_to_settings: model.belongs_to_associations,
-        connection_factory: configuration.connection_factory
+        connection_factory: configuration.connection_factory,
+        raise_on_duplicates: configuration.raise_on_duplicates,
+        logger: configuration.logger
       )
 
       ActiveRecordDataLoader::TableLoader.load_data(

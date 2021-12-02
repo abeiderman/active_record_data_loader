@@ -15,7 +15,7 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration, :co
       expect(config[:order_id].call).to eq(order.id)
     end
 
-    it "samples the primary key of the associated model" do
+    it "samples the primary key of the associated model by default" do
       10.times { Order.create! }
       ids = Order.all.pluck(:id)
 
@@ -23,6 +23,19 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration, :co
 
       expect(generated_ids).to have_at_least(2).items
       expect(ids).to include(*generated_ids)
+    end
+
+    it "cycles through the primary key values if given a :cycle strategy" do
+      10.times { Order.create! }
+      ids = Order.all.pluck(:id)
+      config = ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration.config_for(
+        ar_association: ar_association,
+        strategy: :cycle
+      )
+
+      generated_ids = 10.times.map { config[:order_id].call }.uniq
+
+      expect(generated_ids).to match_array(ids)
     end
 
     it "uses the provided query when not nil" do

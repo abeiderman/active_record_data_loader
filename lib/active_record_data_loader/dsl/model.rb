@@ -32,7 +32,7 @@ module ActiveRecordDataLoader
         ).tap { |a| block.call(a) }
       end
 
-      def belongs_to(assoc_name, eligible_set:)
+      def belongs_to(assoc_name, eligible_set: nil)
         @belongs_to_associations << BelongsToAssociation.new(@klass, assoc_name, eligible_set)
       end
     end

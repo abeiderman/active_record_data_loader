@@ -45,15 +45,16 @@ module ActiveRecordDataLoader
 
     def values(row_numbers, connection)
       row_numbers
-        .map { |i| "(#{row_values(i, connection)})" }
+        .map { |i| row_values(i, connection) }
+        .compact
         .join(",")
     end
 
     def row_values(row_number, connection)
-      data_generator
-        .generate_row(row_number)
-        .map { |v| connection.quote(v) }
-        .join(",")
+      row = data_generator.generate_row(row_number)
+      return unless row.present?
+
+      "(#{row.map { |v| connection.quote(v) }.join(',')})"
     end
   end
 end

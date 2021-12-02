@@ -30,15 +30,18 @@ Metrics/BlockLength:
   Exclude: ["spec/**/*", "*.gemspec"]
 
 Metrics/ClassLength:
+  Max: 150
   Exclude: ["spec/**/*", "*.gemspec"]
 
 Metrics/MethodLength:
-  Max: 15
+  Max: 25
   Exclude: ["spec/**/*"]
 
 Metrics/ParameterLists:
   Max: 5
-  Exclude: ["lib/active_record_data_loader/configuration.rb"]
+  Exclude:
+    - "lib/active_record_data_loader/configuration.rb"
+    - "lib/active_record_data_loader/active_record/model_data_generator.rb"
 
 Style/CaseLikeIf:
   Enabled: false

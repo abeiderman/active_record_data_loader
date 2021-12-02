@@ -68,6 +68,24 @@ class ActiveRecordHelper
 
           t.timestamps
         end
+
+        create_table :shipments, force: true do |t|
+          t.integer :customer_id, null: false
+          t.date :date, null: false
+          t.text :method
+
+          t.timestamps
+        end
+        add_index :shipments, [:date, :customer_id], unique: true
+
+        create_table :license_agreements, force: true do |t|
+          t.string :person_type, null: false, limit: 500
+          t.integer :person_id, null: false
+          t.boolean :agreement, null: false
+
+          t.timestamps
+        end
+        add_index :license_agreements, [:person_type, :person_id], unique: true
       end
 
       reset_column_information
@@ -79,6 +97,10 @@ class ActiveRecordHelper
 
     def mysql?
       ActiveRecord::Base.connection.adapter_name.downcase.to_sym == :mysql2
+    end
+
+    def sqlite?
+      ActiveRecord::Base.connection.adapter_name.downcase.to_sym == :sqlite
     end
 
     def connect_to_postgres
@@ -95,6 +117,20 @@ class ActiveRecordHelper
 
     def reset_column_information
       [Customer, Employee, Order, Payment].each(&:reset_column_information)
+    end
+
+    def reset_pk_sequence(model, value)
+      if postgres?
+        model.connection.set_pk_sequence!(model.table_name, value.to_i)
+      elsif mysql?
+        model.connection.execute(model.sanitize_sql(<<~SQL))
+          ALTER TABLE #{model.table_name} AUTO_INCREMENT = #{value.to_i}
+        SQL
+      elsif sqlite?
+        model.connection.execute(model.sanitize_sql(<<~SQL))
+          UPDATE sqlite_sequence SET seq = #{value.to_i} WHERE name = '#{model.table_name}'
+        SQL
+      end
     end
 
     def db_config
@@ -140,15 +176,28 @@ class Company < ApplicationRecord
 end
 
 class Customer < ApplicationRecord
+  has_many :orders, as: :person
+  has_many :shipments
 end
 
 class Employee < ApplicationRecord
+  has_many :orders, as: :person
 end
 
 class Order < ApplicationRecord
   belongs_to :person, polymorphic: true
+  has_many :payments
 end
 
 class Payment < ApplicationRecord
   belongs_to :order
+end
+
+class Shipment < ApplicationRecord
+  belongs_to :customer
+end
+
+# This is to test behavior of a unique constraint on a polymorphic association
+class LicenseAgreement < ApplicationRecord
+  belongs_to :person, polymorphic: true
 end

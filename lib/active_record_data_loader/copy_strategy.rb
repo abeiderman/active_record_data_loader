@@ -45,8 +45,8 @@ module ActiveRecordDataLoader
 
     def csv_rows(row_numbers, connection)
       row_numbers.map do |i|
-        data_generator.generate_row(i).map { |d| quote_data(d, connection) }.join(",")
-      end
+        data_generator.generate_row(i)&.map { |d| quote_data(d, connection) }&.join(",")
+      end.compact
     end
 
     def table_name_for_copy(connection)

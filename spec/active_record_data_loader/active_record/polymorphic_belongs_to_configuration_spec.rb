@@ -43,6 +43,25 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::PolymorphicBelongsToConfigu
       expect(employee_ids).to include(*generated_employee_ids)
     end
 
+    it "cycles through the primary key values if given a :cycle strategy" do
+      100.times do |i|
+        Customer.create!(id: 10 + i)
+        Employee.create!(id: 10_000 + i)
+      end
+      customer_ids = Customer.order(:id).pluck(:id)
+      employee_ids = Employee.order(:id).pluck(:id)
+
+      config = ActiveRecordDataLoader::ActiveRecord::PolymorphicBelongsToConfiguration.config_for(
+        polymorphic_settings: settings,
+        strategy: :cycle
+      )
+      generated_customer_ids = 100.times.map { config[:person_id].call(0) }.uniq
+      generated_employee_ids = 100.times.map { config[:person_id].call(1) }.uniq
+
+      expect(generated_customer_ids).to match_array(customer_ids)
+      expect(generated_employee_ids).to match_array(employee_ids)
+    end
+
     it "caches the IDs from the association" do
       10.times { Customer.create! }
       10.times { Employee.create! }

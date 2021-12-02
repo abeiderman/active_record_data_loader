@@ -3,19 +3,20 @@
 module ActiveRecordDataLoader
   module ActiveRecord
     class PolymorphicBelongsToConfiguration
-      def self.config_for(polymorphic_settings:)
+      def self.config_for(polymorphic_settings:, strategy: :random)
         ar_association = polymorphic_settings.model_class.reflect_on_association(
           polymorphic_settings.name
         )
         raise "#{name} only supports polymorphic associations" unless ar_association.polymorphic?
 
-        new(polymorphic_settings, ar_association).polymorphic_config
+        new(polymorphic_settings, ar_association, strategy).polymorphic_config
       end
 
-      def initialize(settings, ar_association)
+      def initialize(settings, ar_association, strategy)
         @settings = settings
         @ar_association = ar_association
         @model_count = settings.weighted_models.size
+        @strategy = strategy
       end
 
       def polymorphic_config
@@ -32,17 +33,26 @@ module ActiveRecordDataLoader
       end
 
       def foreign_key(row_number)
-        possible_values[row_number % @model_count][1].sample
+        if @strategy == :cycle
+          possible_values[row_number % @model_count][1].next
+        else
+          possible_values[row_number % @model_count][1].sample
+        end
       end
 
       def possible_values
         @possible_values ||= begin
           values = @settings.models.keys.map do |klass|
-            [klass.name, base_query(klass).pluck(klass.primary_key).to_a]
+            [klass.name, values_query(klass)]
           end.to_h
 
           @settings.weighted_models.map { |klass| [klass.name, values[klass.name]] }
         end
+      end
+
+      def values_query(klass)
+        values = base_query(klass).pluck(klass.primary_key).to_a
+        @strategy == :cycle ? values.cycle : values
       end
 
       def base_query(klass)

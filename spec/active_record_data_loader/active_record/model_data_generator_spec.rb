@@ -5,13 +5,16 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator, :connec
   let(:polymorphic_settings) { [] }
   let(:belongs_to_settings) { [] }
   let(:model) { Employee }
+  let(:raise_on_duplicates) { false }
   subject(:generator) do
     described_class.new(
       model: model,
       column_settings: column_settings,
       polymorphic_settings: polymorphic_settings,
       belongs_to_settings: belongs_to_settings,
-      connection_factory: -> { ::ActiveRecord::Base.connection }
+      connection_factory: -> { ::ActiveRecord::Base.connection },
+      raise_on_duplicates: raise_on_duplicates,
+      logger: ActiveRecordDataLoader.configuration.logger
     )
   end
 
@@ -155,6 +158,92 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator, :connec
           row_hashes = rows.map { |r| generator.column_list.zip(r).to_h }
           person_ids = row_hashes.map { |r| r[:person_id] }.uniq
           expect(Customer.where(id: person_ids).pluck(:business_name).uniq).to eq(["Initech"])
+        end
+      end
+    end
+
+    context "when the model has a unique index" do
+      let(:model) { Shipment }
+      let(:date_range) { (Date.new(2021, 11, 10)..Date.new(2021, 11, 13)).to_a.freeze }
+      let(:column_settings) { { date: -> { date_range.sample } } }
+
+      it "does not repeat values if retrying eventually finds unique values" do
+        Customer.create!(business_name: "Acme")
+
+        rows = 4.times.map { |i| generator.generate_row(i) }
+        row_hashes = rows.map { |r| generator.column_list.zip(r).to_h }
+        expect(row_hashes.map { |r| [r[:customer_id], r[:date]] }.uniq).to have(4).items
+      end
+
+      it "returns null rows if it can't find unique values by retrying" do
+        Customer.create!(business_name: "Acme")
+
+        rows = 6.times.map { |i| generator.generate_row(i) }
+        expect(rows).to have(6).items
+        expect(rows.compact).to have(4).items
+        row_hashes = rows.compact.map { |r| generator.column_list.zip(r).to_h }
+        expect(row_hashes.map { |r| [r[:customer_id], r[:date]] }.uniq).to have(4).items
+      end
+
+      context "when configured to raise on duplicates" do
+        let(:raise_on_duplicates) { true }
+
+        it "raises if it can't find unique values by retrying" do
+          Customer.create!(business_name: "Acme")
+
+          4.times.map { |i| generator.generate_row(i) }
+          expect { generator.generate_row(4) }.to raise_error(/duplicate/)
+        end
+      end
+
+      context "when the unique index is on a polymorphic association" do
+        let(:model) { LicenseAgreement }
+        let(:column_settings) { {} }
+        let(:polymorphic_settings) do
+          [
+            ActiveRecordDataLoader::Dsl::PolymorphicAssociation.new(LicenseAgreement, :person).tap do |a|
+              a.model(Customer)
+              a.model(Employee)
+            end,
+          ]
+        end
+
+        it "does not repeat values if retrying eventually finds unique values" do
+          Customer.create!(id: 10, business_name: "Acme")
+          Customer.create!(id: 20, business_name: "Initech")
+          Employee.create!(id: 100)
+          Employee.create!(id: 200)
+
+          rows = 4.times.map { |i| generator.generate_row(i) }
+          row_hashes = rows.map { |r| generator.column_list.zip(r).to_h }
+          expect(row_hashes.map { |r| [r[:person_id], r[:person_type]] }.uniq).to match_array(
+            [
+              [10, "Customer"],
+              [20, "Customer"],
+              [100, "Employee"],
+              [200, "Employee"],
+            ]
+          )
+        end
+
+        it "returns null rows if it can't find unique values by retrying" do
+          Customer.create!(id: 10, business_name: "Acme")
+          Customer.create!(id: 20, business_name: "Initech")
+          Employee.create!(id: 100)
+          Employee.create!(id: 200)
+
+          rows = 6.times.map { |i| generator.generate_row(i) }
+          expect(rows).to have(6).items
+          expect(rows.compact).to have(4).items
+          row_hashes = rows.compact.map { |r| generator.column_list.zip(r).to_h }
+          expect(row_hashes.map { |r| [r[:person_id], r[:person_type]] }.uniq).to match_array(
+            [
+              [10, "Customer"],
+              [20, "Customer"],
+              [100, "Employee"],
+              [200, "Employee"],
+            ]
+          )
         end
       end
     end

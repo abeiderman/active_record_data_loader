@@ -3,7 +3,7 @@
 module ActiveRecordDataLoader
   class Configuration
     attr_accessor :connection_factory, :default_batch_size, :default_row_count,
-                  :logger, :statement_timeout
+                  :logger, :raise_on_duplicates, :statement_timeout
     attr_reader :output
 
     def initialize(
@@ -12,6 +12,7 @@ module ActiveRecordDataLoader
       logger: nil,
       statement_timeout: "2min",
       connection_factory: -> { ::ActiveRecord::Base.connection },
+      raise_on_duplicates: false,
       output: nil
     )
       @default_batch_size = default_batch_size
@@ -19,6 +20,7 @@ module ActiveRecordDataLoader
       @logger = logger || default_logger
       @statement_timeout = statement_timeout
       @connection_factory = connection_factory
+      @raise_on_duplicates = raise_on_duplicates
       self.output = output
     end
 

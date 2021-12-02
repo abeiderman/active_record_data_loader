@@ -69,10 +69,11 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
     it_behaves_like "loading data", :mysql
 
     it "uses an optional connection factory" do
-      dbl = double(connection_requested: ::ActiveRecord::Base.connection)
+      factory = -> { ::ActiveRecord::Base.connection }
+      allow(factory).to receive(:call).and_call_original
       config = ActiveRecordDataLoader::Configuration.new(
         logger: ::ActiveRecord::Base.logger,
-        connection_factory: -> { dbl.connection_requested }
+        connection_factory: factory
       )
       loader = ActiveRecordDataLoader.define(config) do
         model Company do |m|
@@ -83,7 +84,7 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
       loader.load_data
 
       expect(Company.all).to have(10).items
-      expect(dbl).to have_received(:connection_requested).at_least(:once)
+      expect(factory).to have_received(:call).at_least(:once)
     end
   end
 
@@ -174,5 +175,99 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
       first_script_line = File.open(filename, &:readline)
       expect(first_script_line).to match(/\AINSERT/i)
     end
+  end
+
+  describe "unique constraints handling" do
+    let(:date_range) { (Date.current - 4.days)..Date.current }
+    let(:config) { ActiveRecordDataLoader::Configuration.new(logger: ::ActiveRecord::Base.logger) }
+    let(:loader) do
+      dates = date_range.to_a.freeze
+      ActiveRecordDataLoader.define(config) do
+        model Customer do |m|
+          m.count 100
+          m.column :business_name, -> { %w[Acme Initech].sample }
+        end
+
+        model Employee do |m|
+          m.count 100
+        end
+
+        model Order do |m|
+          m.count 250
+          m.column :date, -> { dates.sample }
+
+          m.polymorphic :person do |p|
+            p.model Customer, weight: 100
+            p.model Employee, weight: 1
+          end
+        end
+
+        model Payment do |m|
+          m.count 250
+
+          m.column :date, -> { dates.sample }
+          m.belongs_to :order
+        end
+
+        model Shipment do |m|
+          m.count 1_000
+
+          m.column :date, -> { dates.sample }
+          m.belongs_to :customer
+        end
+
+        model LicenseAgreement do |m|
+          m.count 200
+
+          m.column :agreement, true
+          m.polymorphic :person do |p|
+            p.model Customer, weight: 1
+            p.model Employee, weight: 1
+          end
+        end
+      end
+    end
+
+    shared_examples_for "handling unique constraints" do |adapter|
+      context "when configured to ignore duplicates" do
+        it "creates as many unique rows as possible and skips duplicates for #{adapter}", adapter do
+          ActiveRecordHelper.reset_pk_sequence(Customer, 100)
+          ActiveRecordHelper.reset_pk_sequence(Employee, 1_000)
+
+          loader.load_data
+
+          expect(Customer.all).to have(100).items
+          expect(Employee.all).to have(100).items
+          expect(Order.all).to have(250).items
+          expect(Payment.all).to have(250).items
+          # There are 5 dates and 100 customers, so only 500 possible unique values
+          expect(Shipment.all).to have(500).items
+          expect(LicenseAgreement.all).to have(200).items
+          expect(LicenseAgreement.joins(<<~SQL)).to have(100).items
+            INNER JOIN customers ON customers.id = person_id AND person_type = 'Customer'
+          SQL
+          expect(LicenseAgreement.joins(<<~SQL)).to have(100).items
+            INNER JOIN employees ON employees.id = person_id AND person_type = 'Employee'
+          SQL
+        end
+      end
+
+      context "when configured to raise on duplicates" do
+        let(:config) do
+          ActiveRecordDataLoader::Configuration.new(
+            logger: ::ActiveRecord::Base.logger,
+            raise_on_duplicates: true
+          )
+        end
+
+        it "raises an error when it runs into duplicates for #{adapter}", adapter do
+          expect { loader.load_data }.to raise_error(/duplicate/)
+        end
+      end
+    end
+
+    it_behaves_like "handling unique constraints", :sqlite3
+    it_behaves_like "handling unique constraints", :postgres
+    it_behaves_like "handling unique constraints", :mysql
   end
 end
