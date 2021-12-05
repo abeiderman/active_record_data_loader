@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.name          = "active_record_data_loader"
   spec.version       = ActiveRecordDataLoader::VERSION
   spec.authors       = ["Alejandro Beiderman"]
-  spec.email         = ["abeiderman@gmail.com"]
+  spec.email         = ["active_record_data_loader@ossprojects.dev"]
 
   spec.summary       = "A utility to bulk load test data for performance testing."
   spec.description   = "A utility to bulk load test data for performance testing."
