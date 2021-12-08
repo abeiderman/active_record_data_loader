@@ -2,8 +2,8 @@
 
 module ActiveRecordDataLoader
   module ActiveRecord
-    class PolymorphicBelongsToConfiguration
-      def self.config_for(polymorphic_settings:, strategy: :random)
+    class PolymorphicBelongsToDataProvider
+      def self.provider_for(polymorphic_settings:, strategy: :random)
         ar_association = polymorphic_settings.model_class.reflect_on_association(
           polymorphic_settings.name
         )

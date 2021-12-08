@@ -95,9 +95,9 @@ module ActiveRecordDataLoader
         @model_class
           .columns_hash
           .reject { |name| name == @model_class.primary_key }
-          .select { |_, c| ColumnConfiguration.supported?(model_class: @model_class, ar_column: c) }
+          .select { |_, c| ColumnDataProvider.supported?(model_class: @model_class, ar_column: c) }
           .map do |_, c|
-            ColumnConfiguration.config_for(
+            ColumnDataProvider.provider_for(
               model_class: @model_class,
               ar_column: c,
               connection_factory: @connection_factory
@@ -112,7 +112,7 @@ module ActiveRecordDataLoader
           .select(&:belongs_to?)
           .reject(&:polymorphic?)
           .map do |assoc|
-            BelongsToConfiguration.config_for(
+            BelongsToDataProvider.provider_for(
               ar_association: assoc,
               query: @belongs_to_settings[assoc.name],
               strategy: column_config_strategy(assoc)
@@ -124,7 +124,7 @@ module ActiveRecordDataLoader
       def polymorphic_config
         @polymorphic_settings
           .map do |s|
-            PolymorphicBelongsToConfiguration.config_for(
+            PolymorphicBelongsToDataProvider.provider_for(
               polymorphic_settings: s,
               strategy: column_config_strategy(s.model_class.reflect_on_association(s.name))
             )

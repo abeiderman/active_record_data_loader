@@ -2,8 +2,8 @@
 
 module ActiveRecordDataLoader
   module ActiveRecord
-    class BelongsToConfiguration
-      def self.config_for(ar_association:, query: nil, strategy: :random)
+    class BelongsToDataProvider
+      def self.provider_for(ar_association:, query: nil, strategy: :random)
         raise "#{name} does not support polymorphic associations" if ar_association.polymorphic?
 
         { ar_association.join_foreign_key.to_sym => new(ar_association, query, strategy).foreign_key_func }

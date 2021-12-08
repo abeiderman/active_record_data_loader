@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe ActiveRecordDataLoader::ActiveRecord::PolymorphicBelongsToConfiguration, :connects_to_db do
+RSpec.describe ActiveRecordDataLoader::ActiveRecord::PolymorphicBelongsToDataProvider, :connects_to_db do
   subject(:config) do
-    ActiveRecordDataLoader::ActiveRecord::PolymorphicBelongsToConfiguration.config_for(
+    described_class.provider_for(
       polymorphic_settings: settings
     )
   end
@@ -51,7 +51,7 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::PolymorphicBelongsToConfigu
       customer_ids = Customer.order(:id).pluck(:id)
       employee_ids = Employee.order(:id).pluck(:id)
 
-      config = ActiveRecordDataLoader::ActiveRecord::PolymorphicBelongsToConfiguration.config_for(
+      config = described_class.provider_for(
         polymorphic_settings: settings,
         strategy: :cycle
       )
@@ -80,14 +80,14 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::PolymorphicBelongsToConfigu
 
     it "clears the cache when retrieving another config set" do
       Customer.create!(id: 1)
-      first_config = ActiveRecordDataLoader::ActiveRecord::PolymorphicBelongsToConfiguration.config_for(
+      first_config = described_class.provider_for(
         polymorphic_settings: settings
       )
       first_generated_id = first_config[:person_id].call(0)
 
       Customer.find(1).delete
       Customer.create!(id: 2)
-      second_config = ActiveRecordDataLoader::ActiveRecord::PolymorphicBelongsToConfiguration.config_for(
+      second_config = described_class.provider_for(
         polymorphic_settings: settings
       )
       second_generated_id = second_config[:person_id].call(0)

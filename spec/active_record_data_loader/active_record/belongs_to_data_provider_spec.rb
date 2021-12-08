@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration, :connects_to_db do
+RSpec.describe ActiveRecordDataLoader::ActiveRecord::BelongsToDataProvider, :connects_to_db do
   subject(:config) do
-    ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration.config_for(ar_association: ar_association)
+    described_class.provider_for(ar_association: ar_association)
   end
 
   context "when it is a non-polymorphic belongs_to association" do
@@ -28,7 +28,7 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration, :co
     it "cycles through the primary key values if given a :cycle strategy" do
       10.times { Order.create! }
       ids = Order.all.pluck(:id)
-      config = ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration.config_for(
+      config = described_class.provider_for(
         ar_association: ar_association,
         strategy: :cycle
       )
@@ -39,7 +39,7 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration, :co
     end
 
     it "uses the provided query when not nil" do
-      config = ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration.config_for(
+      config = described_class.provider_for(
         ar_association: ar_association,
         query: -> { Order.where(order_kind: "web") }
       )
@@ -64,14 +64,14 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration, :co
 
     it "clears the cache when retrieving another config set" do
       Order.create!(id: 1)
-      first_config = ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration.config_for(
+      first_config = described_class.provider_for(
         ar_association: ar_association
       )
       first_generated_id = first_config[:order_id].call
 
       Order.find(1).delete
       Order.create!(id: 2)
-      second_config = ActiveRecordDataLoader::ActiveRecord::BelongsToConfiguration.config_for(
+      second_config = described_class.provider_for(
         ar_association: ar_association
       )
       second_generated_id = second_config[:order_id].call

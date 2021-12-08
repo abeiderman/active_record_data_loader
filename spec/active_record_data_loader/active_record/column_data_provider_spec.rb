@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-RSpec.describe ActiveRecordDataLoader::ActiveRecord::ColumnConfiguration, :connects_to_db do
+RSpec.describe ActiveRecordDataLoader::ActiveRecord::ColumnDataProvider, :connects_to_db do
   let(:model_class) { Order }
   let(:config) do
-    ActiveRecordDataLoader::ActiveRecord::ColumnConfiguration.config_for(
+    described_class.provider_for(
       model_class: model_class,
       ar_column: ar_column,
       connection_factory: -> { ::ActiveRecord::Base.connection }

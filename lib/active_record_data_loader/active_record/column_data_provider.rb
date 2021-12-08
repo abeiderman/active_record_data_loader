@@ -2,7 +2,7 @@
 
 module ActiveRecordDataLoader
   module ActiveRecord
-    class ColumnConfiguration
+    class ColumnDataProvider
       class << self
         VALUE_GENERATORS = {
           enum: EnumValueGenerator,
@@ -12,7 +12,7 @@ module ActiveRecordDataLoader
           datetime: DatetimeValueGenerator,
         }.freeze
 
-        def config_for(model_class:, ar_column:, connection_factory:)
+        def provider_for(model_class:, ar_column:, connection_factory:)
           raise_error_if_not_supported(model_class, ar_column)
 
           {
