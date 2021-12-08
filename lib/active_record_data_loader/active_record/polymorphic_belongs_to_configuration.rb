@@ -33,11 +33,7 @@ module ActiveRecordDataLoader
       end
 
       def foreign_key(row_number)
-        if @strategy == :cycle
-          possible_values[row_number % @model_count][1].next
-        else
-          possible_values[row_number % @model_count][1].sample
-        end
+        possible_values[row_number % @model_count][1].next
       end
 
       def possible_values
@@ -51,8 +47,7 @@ module ActiveRecordDataLoader
       end
 
       def values_query(klass)
-        values = base_query(klass).pluck(klass.primary_key).to_a
-        @strategy == :cycle ? values.cycle : values
+        List.for(base_query(klass).pluck(klass.primary_key), strategy: @strategy)
       end
 
       def base_query(klass)

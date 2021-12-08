@@ -16,29 +16,13 @@ module ActiveRecordDataLoader
       end
 
       def foreign_key_func
-        if @strategy == :cycle
-          -> { possible_values.next }
-        else
-          -> { possible_values.sample }
-        end
+        -> { possible_values.next }
       end
 
       private
 
-      def cycle?
-        defined?(@cycle) || @cycle = (@strategy.respond_to?(:call) ? @strategy.call : @strategy) == :cycle
-        @cycle
-      end
-
       def possible_values
-        @possible_values ||= begin
-          list = base_query.pluck(@ar_association.join_primary_key).to_a
-          if @strategy == :cycle
-            list.cycle
-          else
-            list
-          end
-        end
+        @possible_values ||= List.for(base_query.pluck(@ar_association.join_primary_key), strategy: @strategy)
       end
 
       def base_query
