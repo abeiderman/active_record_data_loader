@@ -4,6 +4,7 @@ module ActiveRecordDataLoader
   class Configuration
     attr_accessor :connection_factory, :default_batch_size, :default_row_count,
                   :logger, :raise_on_duplicates, :statement_timeout
+    attr_writer :max_duplicate_retries
     attr_reader :output
 
     def initialize(
@@ -13,6 +14,7 @@ module ActiveRecordDataLoader
       statement_timeout: "2min",
       connection_factory: -> { ::ActiveRecord::Base.connection },
       raise_on_duplicates: false,
+      max_duplicate_retries: 20,
       output: nil
     )
       @default_batch_size = default_batch_size
@@ -21,11 +23,22 @@ module ActiveRecordDataLoader
       @statement_timeout = statement_timeout
       @connection_factory = connection_factory
       @raise_on_duplicates = raise_on_duplicates
+      @max_duplicate_retries = max_duplicate_retries
       self.output = output
     end
 
     def output=(output)
       @output = validate_output(output)
+    end
+
+    def max_duplicate_retries(model = nil)
+      return @max_duplicate_retries unless @max_duplicate_retries.respond_to?(:call)
+
+      if @max_duplicate_retries.arity == 1
+        @max_duplicate_retries.call(model)
+      else
+        @max_duplicate_retries.call
+      end
     end
 
     private

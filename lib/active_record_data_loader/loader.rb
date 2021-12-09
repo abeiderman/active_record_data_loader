@@ -20,21 +20,24 @@ module ActiveRecordDataLoader
     attr_reader :definition, :configuration
 
     def load_model(model, file_adapter)
-      generator = ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator.new(
+      ActiveRecordDataLoader::TableLoader.load_data(
+        batch_size: model.batch_size,
+        total_rows: model.row_count,
+        connection_handler: connection_handler,
+        strategy: strategy_class.new(generator(model), file_adapter),
+        logger: configuration.logger
+      )
+    end
+
+    def generator(model)
+      ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator.new(
         model: model.klass,
         column_settings: model.columns,
         polymorphic_settings: model.polymorphic_associations,
         belongs_to_settings: model.belongs_to_associations,
         connection_factory: configuration.connection_factory,
         raise_on_duplicates: configuration.raise_on_duplicates,
-        logger: configuration.logger
-      )
-
-      ActiveRecordDataLoader::TableLoader.load_data(
-        batch_size: model.batch_size,
-        total_rows: model.row_count,
-        connection_handler: connection_handler,
-        strategy: strategy_class.new(generator, file_adapter),
+        max_duplicate_retries: configuration.max_duplicate_retries(model.klass),
         logger: configuration.logger
       )
     end

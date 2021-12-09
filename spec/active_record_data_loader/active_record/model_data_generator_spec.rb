@@ -6,6 +6,7 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator, :connec
   let(:belongs_to_settings) { [] }
   let(:model) { Employee }
   let(:raise_on_duplicates) { false }
+  let(:max_duplicate_retries) { 20 }
   subject(:generator) do
     described_class.new(
       model: model,
@@ -14,6 +15,7 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator, :connec
       belongs_to_settings: belongs_to_settings,
       connection_factory: -> { ::ActiveRecord::Base.connection },
       raise_on_duplicates: raise_on_duplicates,
+      max_duplicate_retries: max_duplicate_retries,
       logger: ActiveRecordDataLoader.configuration.logger
     )
   end
@@ -183,6 +185,27 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator, :connec
         expect(rows.compact).to have(4).items
         row_hashes = rows.compact.map { |r| generator.column_list.zip(r).to_h }
         expect(row_hashes.map { |r| [r[:customer_id], r[:date]] }.uniq).to have(4).items
+      end
+
+      context "when given zero max retries" do
+        let(:column_settings) do
+          call_count = 0
+          {
+            date: lambda do
+              day = (call_count += 1) > 2 ? 11 : 10
+              Date.new(2021, 11, day)
+            end,
+          }
+        end
+        let(:max_duplicate_retries) { 0 }
+
+        it "does not retry and returns null rows" do
+          Customer.create!(business_name: "Acme")
+
+          rows = 2.times.map { |i| generator.generate_row(i) }
+          expect(rows).to have(2).items
+          expect(rows.compact).to have(1).item
+        end
       end
 
       context "when configured to raise on duplicates" do

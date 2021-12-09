@@ -5,14 +5,13 @@ module ActiveRecordDataLoader
     class ModelDataGenerator
       attr_reader :table
 
-      MAX_RETRIES = 20
-
       def initialize(
         model:,
         column_settings:,
         connection_factory:,
         logger:,
         raise_on_duplicates:,
+        max_duplicate_retries:,
         polymorphic_settings: [],
         belongs_to_settings: []
       )
@@ -23,6 +22,7 @@ module ActiveRecordDataLoader
         @belongs_to_settings = belongs_to_settings.map { |s| [s.name, s.query] }.to_h
         @connection_factory = connection_factory
         @raise_on_duplicates = raise_on_duplicates
+        @max_duplicate_retries = max_duplicate_retries
         @logger = logger
         @index_tracker = UniqueIndexTracker.new(model: model, connection_factory: connection_factory)
         @index_tracker.map_indexed_columns(column_list)
@@ -40,9 +40,8 @@ module ActiveRecordDataLoader
 
       def generate_row_with_retries(row_number)
         retries = 0
-        while @index_tracker.repeating_unique_values?(row = generate_candidate_row(row_number)) &&
-              retries <= MAX_RETRIES
-          if (retries += 1) > MAX_RETRIES
+        while @index_tracker.repeating_unique_values?(row = generate_candidate_row(row_number))
+          if (retries += 1) > @max_duplicate_retries
             raise DuplicateKeyError, <<~MSG if @raise_on_duplicates
               Exhausted retries looking for unique values for row #{row_number} for '#{table}'.
               Table '#{table}' has unique indexes that would have prevented inserting this row. If you would
