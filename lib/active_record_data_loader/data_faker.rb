@@ -13,15 +13,23 @@ module ActiveRecordDataLoader
 
       def adapter
         @adapter ||=
-          if Gem.loaded_specs.key?("ffaker")
-            require "ffaker"
+          if can_use?("ffaker", "2.1.0")
             FFakerGemAdapter.new
-          elsif Gem.loaded_specs.key?("faker")
-            require "faker"
+          elsif can_use?("faker", "1.9.3")
             FakerGemAdapter.new
           else
             NoGemAdapter.new
           end
+      end
+
+      def can_use?(gem, min_version)
+        gemspec = Gem.loaded_specs[gem]
+        return false unless gemspec.present? && gemspec.version >= Gem::Version.new(min_version)
+
+        require gem
+        true
+      rescue LoadError
+        false
       end
     end
 
