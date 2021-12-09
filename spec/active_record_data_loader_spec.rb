@@ -185,28 +185,10 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
       ActiveRecordDataLoader.define(config) do
         model Customer do |m|
           m.count 100
-          m.column :business_name, -> { %w[Acme Initech].sample }
         end
 
         model Employee do |m|
           m.count 100
-        end
-
-        model Order do |m|
-          m.count 250
-          m.column :date, -> { dates.sample }
-
-          m.polymorphic :person do |p|
-            p.model Customer, weight: 100
-            p.model Employee, weight: 1
-          end
-        end
-
-        model Payment do |m|
-          m.count 250
-
-          m.column :date, -> { dates.sample }
-          m.belongs_to :order
         end
 
         model Shipment do |m|
@@ -221,8 +203,8 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
 
           m.column :agreement, true
           m.polymorphic :person do |p|
-            p.model Customer, weight: 1
-            p.model Employee, weight: 1
+            p.model Customer
+            p.model Employee
           end
         end
       end
@@ -238,8 +220,6 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
 
           expect(Customer.all).to have(100).items
           expect(Employee.all).to have(100).items
-          expect(Order.all).to have(250).items
-          expect(Payment.all).to have(250).items
           # There are 5 dates and 100 customers, so only 500 possible unique values
           expect(Shipment.all).to have(500).items
           expect(LicenseAgreement.all).to have(200).items
@@ -253,11 +233,36 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
       end
 
       context "when configured to raise on duplicates" do
-        let(:config) do
-          ActiveRecordDataLoader::Configuration.new(
-            logger: ::ActiveRecord::Base.logger,
-            raise_on_duplicates: true
-          )
+        let(:loader) do
+          dates = date_range.to_a.freeze
+          ActiveRecordDataLoader.define(config) do
+            model Customer do |m|
+              m.count 100
+            end
+
+            model Employee do |m|
+              m.count 100
+            end
+
+            model Shipment do |m|
+              m.count 1_000
+              m.raise_on_duplicates
+              m.max_duplicate_retries 5
+
+              m.column :date, -> { dates.sample }
+              m.belongs_to :customer
+            end
+
+            model LicenseAgreement do |m|
+              m.count 200
+
+              m.column :agreement, true
+              m.polymorphic :person do |p|
+                p.model Customer
+                p.model Employee
+              end
+            end
+          end
         end
 
         it "raises an error when it runs into duplicates for #{adapter}", adapter do

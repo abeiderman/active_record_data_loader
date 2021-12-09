@@ -3,8 +3,7 @@
 module ActiveRecordDataLoader
   class Configuration
     attr_accessor :connection_factory, :default_batch_size, :default_row_count,
-                  :logger, :raise_on_duplicates, :statement_timeout
-    attr_writer :max_duplicate_retries
+                  :logger, :max_duplicate_retries, :raise_on_duplicates, :statement_timeout
     attr_reader :output
 
     def initialize(
@@ -29,16 +28,6 @@ module ActiveRecordDataLoader
 
     def output=(output)
       @output = validate_output(output)
-    end
-
-    def max_duplicate_retries(model = nil)
-      return @max_duplicate_retries unless @max_duplicate_retries.respond_to?(:call)
-
-      if @max_duplicate_retries.arity == 1
-        @max_duplicate_retries.call(model)
-      else
-        @max_duplicate_retries.call
-      end
     end
 
     private

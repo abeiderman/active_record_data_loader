@@ -36,29 +36,4 @@ RSpec.describe ActiveRecordDataLoader::Configuration do
       end
     end
   end
-
-  describe "#max_duplicate_retries" do
-    context "when given a lambda" do
-      it "executes the given lambda" do
-        config = described_class.new(max_duplicate_retries: -> { 10 })
-
-        expect(config.max_duplicate_retries).to eq(10)
-      end
-
-      it "executes the lambda with a model argument" do
-        config = described_class.new(max_duplicate_retries: ->(model) { model == Customer ? 10 : 20 })
-
-        expect(config.max_duplicate_retries(Customer)).to eq(10)
-        expect(config.max_duplicate_retries(Employee)).to eq(20)
-      end
-    end
-
-    context "when given an integer" do
-      it "returns the given value" do
-        config = described_class.new(max_duplicate_retries: 10)
-
-        expect(config.max_duplicate_retries).to eq(10)
-      end
-    end
-  end
 end

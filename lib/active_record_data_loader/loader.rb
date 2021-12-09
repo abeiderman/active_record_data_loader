@@ -36,8 +36,8 @@ module ActiveRecordDataLoader
         polymorphic_settings: model.polymorphic_associations,
         belongs_to_settings: model.belongs_to_associations,
         connection_factory: configuration.connection_factory,
-        raise_on_duplicates: configuration.raise_on_duplicates,
-        max_duplicate_retries: configuration.max_duplicate_retries(model.klass),
+        raise_on_duplicates: model.raise_on_duplicates_flag,
+        max_duplicate_retries: model.max_duplicate_retries,
         logger: configuration.logger
       )
     end
