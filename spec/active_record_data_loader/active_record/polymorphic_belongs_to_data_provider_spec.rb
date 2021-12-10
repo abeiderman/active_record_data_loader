@@ -43,7 +43,7 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::PolymorphicBelongsToDataPro
       expect(employee_ids).to include(*generated_employee_ids)
     end
 
-    it "cycles through the primary key values if given a :cycle strategy" do
+    it "cycles through the primary key values if given a :random_cycle strategy" do
       100.times do |i|
         Customer.create!(id: 10 + i)
         Employee.create!(id: 10_000 + i)
@@ -53,7 +53,7 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::PolymorphicBelongsToDataPro
 
       config = described_class.provider_for(
         polymorphic_settings: settings,
-        strategy: :cycle
+        strategy: :random_cycle
       )
       generated_customer_ids = 100.times.map { config[:person_id].call(0) }.uniq
       generated_employee_ids = 100.times.map { config[:person_id].call(1) }.uniq

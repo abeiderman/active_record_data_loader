@@ -187,6 +187,21 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator, :connec
         expect(row_hashes.map { |r| [r[:customer_id], r[:date]] }.uniq).to have(4).items
       end
 
+      context "when the unqiue values include two foreign keys" do
+        let(:model) { EmployeeSkill }
+
+        it "shuffles the foreign key IDs while cycling so it can eventually produce unique combinations" do
+          10.times { Employee.create! }
+          5.times { Skill.create! }
+
+          rows = 50.times.map { |i| generator.generate_row(i) }
+          row_hashes = rows.compact.map { |r| generator.column_list.zip(r).to_h }
+          expect(row_hashes.map { |r| [r[:employee_id], r[:skill_id]] }.uniq).to have_at_least(41).items
+          expect(row_hashes.map { |r| r[:employee_id] }.uniq).to have(10).items
+          expect(row_hashes.map { |r| r[:skill_id] }.uniq).to have(5).items
+        end
+      end
+
       context "when given zero max retries" do
         let(:column_settings) do
           call_count = 0

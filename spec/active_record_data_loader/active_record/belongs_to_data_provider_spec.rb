@@ -25,12 +25,12 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::BelongsToDataProvider, :con
       expect(ids).to include(*generated_ids)
     end
 
-    it "cycles through the primary key values if given a :cycle strategy" do
+    it "cycles through the primary key values if given a :random_cycle strategy" do
       10.times { Order.create! }
       ids = Order.all.pluck(:id)
       config = described_class.provider_for(
         ar_association: ar_association,
-        strategy: :cycle
+        strategy: :random_cycle
       )
 
       generated_ids = 10.times.map { config[:order_id].call }.uniq

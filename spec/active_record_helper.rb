@@ -13,13 +13,13 @@ class ActiveRecordHelper
           SQL
         end
 
-        create_table :companies, force: true do |t|
+        create_table :companies, force: :cascade do |t|
           t.text :name
 
           t.timestamps
         end
 
-        create_table :customers, force: true do |t|
+        create_table :customers, force: :cascade do |t|
           t.text :name
           t.text :company_name
           t.text :business_name
@@ -27,7 +27,7 @@ class ActiveRecordHelper
           t.timestamps
         end
 
-        create_table :employees, force: true do |t|
+        create_table :employees, force: :cascade do |t|
           t.text :name
           t.text :first_name
           t.text :middle_name
@@ -40,7 +40,23 @@ class ActiveRecordHelper
           t.timestamps
         end
 
-        create_table :orders, force: true do |t|
+        create_table :skills, force: :cascade do |t|
+          t.text :name
+          t.text :category
+
+          t.timestamps
+        end
+
+        create_table :employee_skills, force: :cascade do |t|
+          t.integer :employee_id, null: false
+          t.integer :skill_id, null: false
+          t.integer :rating, limit: 2, null: false
+
+          t.timestamps
+        end
+        add_index :employee_skills, [:employee_id, :skill_id], unique: true
+
+        create_table :orders, force: :cascade do |t|
           t.text :name
           t.string :code, limit: 12
           t.date :date
@@ -60,7 +76,7 @@ class ActiveRecordHelper
           t.timestamps
         end
 
-        create_table :payments, force: true do |t|
+        create_table :payments, force: :cascade do |t|
           t.integer :order_id
           t.date :date
           t.text :method
@@ -69,7 +85,7 @@ class ActiveRecordHelper
           t.timestamps
         end
 
-        create_table :shipments, force: true do |t|
+        create_table :shipments, force: :cascade do |t|
           t.integer :customer_id, null: false
           t.date :date, null: false
           t.text :method
@@ -78,7 +94,7 @@ class ActiveRecordHelper
         end
         add_index :shipments, [:date, :customer_id], unique: true
 
-        create_table :license_agreements, force: true do |t|
+        create_table :license_agreements, force: :cascade do |t|
           t.string :person_type, null: false, limit: 500
           t.integer :person_id, null: false
           t.boolean :agreement, null: false
@@ -182,6 +198,14 @@ end
 
 class Employee < ApplicationRecord
   has_many :orders, as: :person
+end
+
+class Skill < ApplicationRecord
+end
+
+class EmployeeSkill < ApplicationRecord
+  belongs_to :employee
+  belongs_to :skill
 end
 
 class Order < ApplicationRecord

@@ -133,7 +133,7 @@ module ActiveRecordDataLoader
 
       def column_config_strategy(column)
         if @index_tracker.contained_in_index?(column)
-          :cycle
+          :random_cycle
         else
           :random
         end

@@ -4,8 +4,8 @@ module ActiveRecordDataLoader
   module ActiveRecord
     class List
       def self.for(enumerable, strategy: :random)
-        if strategy == :cycle
-          Cycle.new(enumerable)
+        if strategy == :random_cycle
+          RandomCycle.new(enumerable)
         else
           Random.new(enumerable)
         end
@@ -21,13 +21,25 @@ module ActiveRecordDataLoader
         end
       end
 
-      class Cycle
+      class RandomCycle
         def initialize(enumerable)
-          @list = enumerable.cycle
+          @enumerable = enumerable
+          @count = enumerable.count
+          reset_list
         end
 
         def next
-          @list.next
+          value = @list.next
+          reset_list if (@index += 1) >= @count
+          value
+        end
+
+        private
+
+        def reset_list
+          @index = 0
+          @enumerable = @enumerable.shuffle
+          @list = @enumerable.cycle
         end
       end
     end
