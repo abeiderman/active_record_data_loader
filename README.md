@@ -41,6 +41,7 @@ Polymorphic associations need to be defined explicitly as shown in [Polymorphic 
 ### Basic usage
 
 Let's say you have the following models:
+
 ```ruby
 class Customer < ApplicationRecord
 end
@@ -51,6 +52,7 @@ end
 ```
 
 The following code will create 10,000 customers and 100,000 orders, and will associate the orders to those customers evenly:
+
 ```ruby
 data_loader = ActiveRecordDataLoader.define do
   model Customer do |m|
@@ -67,6 +69,7 @@ data_loader.load_data
 
 #### Overriding column values
 To provide your own values for columns your can provide a lambda or a constant value:
+
 ```ruby
 data_loader = ActiveRecordDataLoader.define do
   model Customer do |m|
@@ -91,7 +94,7 @@ In this example, we are creating 25K orders for customers in CAN with a CAD curr
 data_loader = ActiveRecordDataLoader.define do
   model Customer do |m|
     m.count 10_000
-    m.column :country, -> { %w[CAN MXN USA].sample }
+    m.column :country, -> { %w[CAN MEX USA].sample }
   end
 
   model Order do |m|
@@ -121,6 +124,7 @@ data_loader.load_data
 If you have a polymorphic `belongs_to` association, you will need to define that explicitly for it to be populated.
 
 Let's assume the following models where an order could belong to either a person or a business:
+
 ```ruby
 class Person < ApplicationRecord
   has_many :orders
@@ -136,6 +140,7 @@ end
 ```
 
 In order to populate the `customer` association in orders, you would specify them like this:
+
 ```ruby
 data_loader = ActiveRecordDataLoader.define do
   model Person do |m|
@@ -160,6 +165,7 @@ data_loader.load_data
 ```
 
 You can also provide a `weight` to each of the target models if you want to control how they are distributed. If you wanted to have twice as many orders for `Person` than for `Business`, it would look like this:
+
 ```ruby
 data_loader = ActiveRecordDataLoader.define do
   model Person do |m|
@@ -184,6 +190,7 @@ data_loader.load_data
 ```
 
 Additionaly, you can also provide an `eligible_set` to control which records to limit the association to:
+
 ```ruby
 data_loader = ActiveRecordDataLoader.define do
   model Person do |m|
@@ -207,6 +214,81 @@ end
 
 data_loader.load_data
 ```
+
+### Unique indexes
+
+Unique indexes will be detected automatically and the data generator will attempt to generate unique values for each row. The generator keeps track of unique values previously generated and retries rows with repeating values. Because some columns could be generating random values, retrying can eventually be successful.
+
+There are a couple of behaviors you can control regarding preventing duplicates. The first is the number of times to retry a given row with duplicate values (that would fail the unique index/constraint). The second is what to do if a unique value cannot be generated after the retries are exhausted.
+
+By default, there will be 5 retries per row and the row will be skipped after all retries are unsuccessful. This means fewer rows than requested may end up being populated on that table.
+
+Alternatively, you can choose to raise an error if a unique row cannot be generated. You can also set the number of retries to 0 to not retry at all. If the table in question is a primary target for your testing and will be loaded with a lot of data, you will likely not want to have retries since it could potentially slow down data generation significantly.
+
+Here is how to adjust these settings. Here let's assyme that `daily_notes` has a unique index on both `date` and `person_id`:
+
+```ruby
+class Person < ApplicationRecord
+end
+
+class DailyNotes < ApplicationRecord
+  belongs_to :person
+end
+
+data_loader = ActiveRecordDataLoader.define do
+  model Person do |m|
+    m.count 500
+  end
+
+  model DailyNotes do |m|
+    m.count 10_000
+    m.max_duplicate_retries 10
+    m.do_not_raise_on_duplicates
+
+    m.column :date, -> { Date.today - rand(20) }
+  end
+end
+
+data_loader.load_data
+```
+
+In the case above, retrying could be a reasonable choice since the date is generated at random and it's a small number of rows being generated.
+
+If you want to disable retrying duplicates altogether and raise an error to fail fast you can specify it like this:
+
+```ruby
+class Person < ApplicationRecord
+end
+
+class Skill < ApplicationRecord
+end
+
+class SkillRating < ApplicationRecord
+  belongs_to :person
+  belongs_to :skill
+end
+
+data_loader = ActiveRecordDataLoader.define do
+  model Person do |m|
+    m.count 100_000
+  end
+
+  model Skill do |m|
+    m.count 100
+  end
+
+  model SkillRating do |m|
+    m.count 10_000_000
+    m.max_duplicate_retries 0
+    m.raise_on_duplicates
+
+    m.column :rating, -> { rand(1..10) }
+  end
+end
+
+data_loader.load_data
+```
+
 
 ### Configuration options
 

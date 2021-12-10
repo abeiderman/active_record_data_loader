@@ -13,7 +13,7 @@ module ActiveRecordDataLoader
       statement_timeout: "2min",
       connection_factory: -> { ::ActiveRecord::Base.connection },
       raise_on_duplicates: false,
-      max_duplicate_retries: 20,
+      max_duplicate_retries: 5,
       output: nil
     )
       @default_batch_size = default_batch_size
