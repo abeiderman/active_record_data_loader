@@ -193,6 +193,7 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
 
         model Shipment do |m|
           m.count 1_000
+          m.max_duplicate_retries 20
 
           m.column :date, -> { dates.sample }
           m.belongs_to :customer
