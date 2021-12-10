@@ -1,5 +1,13 @@
 # Change log
 
+## [v1.3.0] - 2021-12-10
+
+[Diff](https://github.com/abeiderman/active_record_data_loader/compare/v1.2.0...v1.3.0)
+
+### Changes:
+* Replace the `:file` output option with simply accepting an optional file path as `output`. A SQL script file will be generated in addition to loading the data into the database.
+* Identify and handle unique indexes by attempting to generate unique values. Add configuration options for behavior around duplicate rows.
+
 ## [v1.2.0] - 2021-11-14
 
 [Diff](https://github.com/abeiderman/active_record_data_loader/compare/v1.1.0...v1.2.0)
@@ -40,3 +48,4 @@ Initial stable release
 [v1.0.2]: https://github.com/abeiderman/active_record_data_loader/releases/tag/v1.0.2
 [v1.1.0]: https://github.com/abeiderman/active_record_data_loader/releases/tag/v1.1.0
 [v1.2.0]: https://github.com/abeiderman/active_record_data_loader/releases/tag/v1.2.0
+[v1.3.0]: https://github.com/abeiderman/active_record_data_loader/releases/tag/v1.3.0
