@@ -1,5 +1,12 @@
 # Change log
 
+## [v1.3.1] - 2021-12-10
+
+[Diff](https://github.com/abeiderman/active_record_data_loader/compare/v1.3.0...v1.3.1)
+
+### Changes:
+* Fix bug with cycling through foreign key IDs when multiple foreign keys are in a unique index/constraint. It was cycling all foreign keys in the same order which meant that if a duplicate row was generated then it will continue to be generated. By shuffling the list of foreign key IDs after each cycle, it gives it a chance at coming up with unique values during retries.
+
 ## [v1.3.0] - 2021-12-10
 
 [Diff](https://github.com/abeiderman/active_record_data_loader/compare/v1.2.0...v1.3.0)
@@ -49,3 +56,4 @@ Initial stable release
 [v1.1.0]: https://github.com/abeiderman/active_record_data_loader/releases/tag/v1.1.0
 [v1.2.0]: https://github.com/abeiderman/active_record_data_loader/releases/tag/v1.2.0
 [v1.3.0]: https://github.com/abeiderman/active_record_data_loader/releases/tag/v1.3.0
+[v1.3.1]: https://github.com/abeiderman/active_record_data_loader/releases/tag/v1.3.1
