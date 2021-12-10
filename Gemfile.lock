@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    active_record_data_loader (1.2.0)
+    active_record_data_loader (1.3.0)
       activerecord (>= 5.0)
 
 GEM
