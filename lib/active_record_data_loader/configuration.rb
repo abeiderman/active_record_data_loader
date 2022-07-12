@@ -38,7 +38,7 @@ module ActiveRecordDataLoader
       elsif output.is_a?(String)
         output
       else
-        raise "The output configuration parameter must be a filename meant to be the "\
+        raise "The output configuration parameter must be a filename meant to be the " \
               "target for the SQL script"
       end
     end
