@@ -49,14 +49,14 @@ module ActiveRecordDataLoader
             MSG
 
             @logger.warn(
-              "[ActiveRecordDataLoader] "\
+              "[ActiveRecordDataLoader] " \
               "Exhausted retries looking for unique values. Skipping row #{row_number} for '#{table}'."
             )
             return nil
           else
             @logger.info(
-              "[ActiveRecordDataLoader] "\
-              "Retrying row #{row_number} for '#{table}' looking for unique values compliant with indexes. "\
+              "[ActiveRecordDataLoader] " \
+              "Retrying row #{row_number} for '#{table}' looking for unique values compliant with indexes. " \
               "Retry number #{retries}."
             )
           end
