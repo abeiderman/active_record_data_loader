@@ -6,7 +6,7 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::ColumnDataProvider, :connec
     described_class.provider_for(
       model_class: model_class,
       ar_column: ar_column,
-      connection_factory: -> { ::ActiveRecord::Base.connection }
+      connection_factory: -> { ActiveRecord::Base.connection }
     )
   end
 

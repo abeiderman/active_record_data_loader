@@ -13,7 +13,7 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::ModelDataGenerator, :connec
       column_settings: column_settings,
       polymorphic_settings: polymorphic_settings,
       belongs_to_settings: belongs_to_settings,
-      connection_factory: -> { ::ActiveRecord::Base.connection },
+      connection_factory: -> { ActiveRecord::Base.connection },
       raise_on_duplicates: raise_on_duplicates,
       max_duplicate_retries: max_duplicate_retries,
       logger: ActiveRecordDataLoader.configuration.logger

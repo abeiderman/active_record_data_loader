@@ -5,7 +5,7 @@ RSpec.describe ActiveRecordDataLoader::ActiveRecord::EnumValueGenerator, :connec
     described_class.generator_for(
       model_class: Order,
       ar_column: ar_column,
-      connection_factory: -> { ::ActiveRecord::Base.connection }
+      connection_factory: -> { ActiveRecord::Base.connection }
     )
   end
 
