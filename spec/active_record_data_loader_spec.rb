@@ -69,10 +69,10 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
     it_behaves_like "loading data", :mysql
 
     it "uses an optional connection factory" do
-      factory = -> { ::ActiveRecord::Base.connection }
+      factory = -> { ActiveRecord::Base.connection }
       allow(factory).to receive(:call).and_call_original
       config = ActiveRecordDataLoader::Configuration.new(
-        logger: ::ActiveRecord::Base.logger,
+        logger: ActiveRecord::Base.logger,
         connection_factory: factory
       )
       loader = ActiveRecordDataLoader.define(config) do
@@ -100,7 +100,7 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
     shared_examples_for "loading data and writing SQL commands to a file" do |adapter, block|
       it "wirtes SQL commands for #{adapter} into a file", adapter do
         ActiveRecordDataLoader.configure do |c|
-          c.logger = ::ActiveRecord::Base.logger
+          c.logger = ActiveRecord::Base.logger
           c.output = filename
         end
 
@@ -141,15 +141,15 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
       `PGPASSWORD=test psql -h localhost -p 2345 -U test -f #{f}`
     }
     it_behaves_like "loading data and writing SQL commands to a file", :mysql, lambda { |f|
-      File.read(f).split("\n").each { |line| ::ActiveRecord::Base.connection.execute(line) }
+      File.read(f).split("\n").each { |line| ActiveRecord::Base.connection.execute(line) }
     }
     it_behaves_like "loading data and writing SQL commands to a file", :sqlite3, lambda { |f|
-      File.read(f).split("\n").each { |line| ::ActiveRecord::Base.connection.execute(line) }
+      File.read(f).split("\n").each { |line| ActiveRecord::Base.connection.execute(line) }
     }
 
     it "sets the statement timeout for postgres scripts", :postgres do
       ActiveRecordDataLoader.configure do |c|
-        c.logger = ::ActiveRecord::Base.logger
+        c.logger = ActiveRecord::Base.logger
         c.output = filename
         c.statement_timeout = "10min"
       end
@@ -166,7 +166,7 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
       File.open(filename, "w") { |f| f.puts "This is an existing line" }
 
       ActiveRecordDataLoader.configure do |c|
-        c.logger = ::ActiveRecord::Base.logger
+        c.logger = ActiveRecord::Base.logger
         c.output = filename
       end
 
@@ -179,7 +179,7 @@ RSpec.describe ActiveRecordDataLoader, :connects_to_db do
 
   describe "unique constraints handling" do
     let(:date_range) { (Date.current - 4.days)..Date.current }
-    let(:config) { ActiveRecordDataLoader::Configuration.new(logger: ::ActiveRecord::Base.logger) }
+    let(:config) { ActiveRecordDataLoader::Configuration.new(logger: ActiveRecord::Base.logger) }
     let(:loader) do
       dates = date_range.to_a.freeze
       ActiveRecordDataLoader.define(config) do
