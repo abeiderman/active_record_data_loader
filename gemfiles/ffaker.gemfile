@@ -5,3 +5,5 @@ source "https://rubygems.org"
 gem "ffaker"
 
 gemspec path: "../"
+
+instance_eval(File.read("Gemfile.dev"))
