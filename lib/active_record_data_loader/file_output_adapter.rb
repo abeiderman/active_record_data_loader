@@ -41,7 +41,7 @@ module ActiveRecordDataLoader
     def data_filename(table, row_numbers)
       File.join(
         path,
-        "#{file_basename}_#{table.gsub(/"/, '')}_rows_#{row_numbers[0]}_to_#{row_numbers[-1]}.csv"
+        "#{file_basename}_#{table.gsub('"', '')}_rows_#{row_numbers[0]}_to_#{row_numbers[-1]}.csv"
       )
     end
   end
